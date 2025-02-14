@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif; 
+    height: 100%;
+    margin: 0;
+	text-align: left;	
+	background-color: #ffffff;
+} 
+
+.main-content {	
+    color: #212f3d ;
+	width: 100%;
+	box-sizing: border-box;
+	padding : 20px;
+}
+
+.main-content input[type="text"], .main-content button, .main-content textarea {
+	border-radius: 5px;
+	border: 1px solid #d0d3d4;
+}
+
+#footer {
+	font-size: 12px;
+    color: #212f3d ;
+	width: 100%;
+	padding: 20px;
+	box-sizing: border-box;
+	position: absolute;
+	bottom: 0;
+}
+
+.llm-btn {
+	color: #212f3d ;
+	background-color: #fbfcfc;
+	border: 1px solid #212f3d;
+}
+
+.llm-select {
+	color: #212f3d  !important; 
+	
+	background-color: #fbfcfc !important; 
+    border-radius: 5px !important; 
+    padding: 2px;
+}
+
+.llm-reply {
+	font-size: 14px;
+	height: 200px;
+	overflow-y: auto;
+	color: #424949;
+	background-color: #fbfcfc;
+	border: 1px solid #d0d3d4;
+	border-radius: 5px;
+	padding: 5px;
+}

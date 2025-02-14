@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama LLM Assist</title>    
+	<link rel="stylesheet" href="styles/uikit.min.css" />
+	<link rel="stylesheet" href="styles/app.css?v=1.017" />	  
+	  
+</head>
+<body>
+    <div id="vue-app" class="main-content uk-form uk-form-stacked">
+		<div class="uk-form-row">
+			<label class="uk-form-label">Host</label>	
+			<div class="uk-form-controls"><input type="text" id="host" name="host" value="" v-model="host" /></div>
+		</div>		
+		<div class="uk-form-row">
+			<label class="uk-form-label">Model</label>	
+			<div class="uk-form-controls">
+				<select class="llm-select" v-model="llm"> 
+					<option v-for="option in options" >
+					{{ option }}
+					</option>
+				</select>  
+			</div>
+		</div>
+		<div class="uk-form-row llm-reply">
+			{{ textbox }}		
+		</div>
+		<div class="uk-form-row"><input type="checkbox" name="" v-model="inject" /> <label>Send to Word</label></div>
+		
+		<div class="uk-form-row uk-margin-large-top">
+			<label class="uk-form-label">Write something here</label>	
+			<textarea id="enquire" v-model="enquire" cols="50" rows="5" placeholder="write some text"> </textarea>			
+		</div>
+		<div class="uk-form-row">
+			<button class="uk-button llm-btn" v-on:click="send">Chat</button>  
+			<button class="uk-button llm-btn" v-on:click="clear">Clear</button> 			
+		</div>		
+    </div>
+	<div id="footer">version 0.1 by Stephen Yeung</div>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <script src="scripts/app.js?v=1.05"></script> 
+	<script src="scripts/vue.min.js"></script> 
+	<script type="module">
+		import { Ollama } from './scripts/ollama/browser.mjs?v=1.001';
+	    
+		const hostUrl =	'http://192.168.0.188:11434';	
+		const ollama = new Ollama({ host: hostUrl });
+		 
+		var app = new Vue({
+                el: '#vue-app',
+                data: {host: hostUrl, options: [], llm: "", enquire: "how are you", textbox: "", inject: false },
+                methods: {
+                    send: function () { 
+						if (this.llm == "") return;
+						if (this.enquire == "") return;
+						
+						ollama.chat({
+						  model: this.llm,
+						  messages: [{ role: 'user', content: this.enquire }],
+						}).then( json => {
+							let msg = json.message.content; 
+							
+							if (this.inject) {
+								sendToOffice(msg);
+							}
+							else {
+								this.textbox = msg;  
+							}
+						});					
+					},
+					reload: function() {  
+						ollama.list().then( json => {
+							json.models.forEach( item => {
+								this.options.push(item.name); 
+							});		
+							
+						});				
+					},
+					clear: function() {
+						this.enquire = "";
+					}
+				}
+		});
+		
+		app.reload();
+	
+	</script>
+</body>
+</html>
