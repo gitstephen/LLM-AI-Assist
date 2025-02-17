@@ -1,54 +1,133 @@
-body {
-    font-family: Arial, sans-serif; 
-    height: 100%;
-    margin: 0;
-	text-align: left;	
-	background-color: #ffffff;
+::-webkit-scrollbar {
+	width: 2px;		
+}
+::-webkit-scrollbar-thumb {
+	background-color: #888888;
+}
+::-webkit-scrollbar-track {
+	background-color: #f1f1f1;
+}
+
+* {
+	box-sizing: border-box;
+}	
+	
+input[type="text"], button, textarea {
+	border-radius: 5px;
+	border: 1px solid #d0d3d4;
+	padding: 15px;
 } 
 
-.main-content {	
-    color: #212f3d ;
-	width: 100%;
-	box-sizing: border-box;
-	padding : 20px;
+body { 
+  min-height: 100vh;   
+  font-family: arial;
+} 
+
+.llm-container {
+	  display: flex; 
+	  position: relative;
+	  width: 100%; 
+	  height: calc(100vh - 120px); 
+	  background: #fff;	  
 }
 
-.main-content input[type="text"], .main-content button, .main-content textarea {
-	border-radius: 5px;
-	border: 1px solid #d0d3d4;
+.llm-page {  
+	flex: 100%;
+	position: relative;
+	width: 100%;
+	height: 100%; 
+	background: #e5ddd5;
+} 
+ 
+.llm-header {  
+   display: flex;
+   align-items: center;
+  position: relative; 
+  width: 100%;
+  height: 60px;
+  background: #009688;
+  padding: 0 15px;
+}  
+
+.llm-header label {
+	margin-right: 20px;
+	font-weight: 700;
+	font-size: 18px;
+	color: #ffffff;
 }
 
-#footer {
-	font-size: 12px;
-    color: #212f3d ;
+.llm-chat {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 100px);  
+  padding: 40px;
+  overflow-y: auto;
+  background-image: url('../images/watsapp.jpg');
+}
+
+.llm-message {
+	display: flex;
+	position: relative;	  
 	width: 100%;
-	padding: 20px;
-	box-sizing: border-box;
+	margin: 10px 0;
+} 
+
+.llm-send {
+    justify-content: flex-end;	 
+} 
+
+.llm-send > div {
+	background-color: #dcf8c6;
+	border-radius: 10px;
+	border: 1px solid #f1f1f1;
+	display: inline-block;
+	padding: 15px;
+	margin-left: 10%;
+}
+
+.llm-send > div::before{
+	content: '';
 	position: absolute;
-	bottom: 0;
+	top: 0;
+	right: -12px;
+	width: 20px;
+	height: 20px;
+	background: linear-gradient(135deg, #dcf8c6 0%, #dcf8c6 50%, transparent 50%, transparent);
 }
 
-.llm-btn {
-	color: #212f3d ;
-	background-color: #fbfcfc;
-	border: 1px solid #212f3d;
-}
+.llm-received {
+   justify-content: flex-start;  	   
+} 
 
-.llm-select {
-	color: #212f3d  !important; 
-	
-	background-color: #fbfcfc !important; 
-    border-radius: 5px !important; 
-    padding: 2px;
-}
+.llm-received > div {
+	background-color: #ffffff;
+	border-radius: 10px;
+	border: 1px solid #f1f1f1;
+	display: inline-block;
+	padding: 15px;
+	margin-right: 10%;
+} 
 
-.llm-reply {
-	font-size: 14px;
-	height: 200px;
-	overflow-y: auto;
-	color: #424949;
-	background-color: #fbfcfc;
-	border: 1px solid #d0d3d4;
-	border-radius: 5px;
-	padding: 5px;
-}
+.llm-received > div::before {		 
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -12px;
+	width: 20px;
+	height: 20px;
+	background: linear-gradient(225deg, #fff 0%, #fff 50%, transparent 50%, transparent);
+} 
+
+.llm-compose {
+	display: flex;
+	padding: 15px;	  
+	height: 160px;
+	background: #f0f0f0; 
+	justify-content: center;		 
+	position: relative;
+}  
+ 
+ .llm-footer {
+	font-size: 12px;
+ }
+		

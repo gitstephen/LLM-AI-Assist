@@ -5,70 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama LLM Assist</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
-	<link rel="stylesheet" href="styles/app.css?v=1.017" />	  
-	  
+	<link rel="stylesheet" href="styles/app.css" />	   
 </head>
 <body>
-    <div id="vue-app" class="main-content uk-form uk-form-stacked">
-		<div class="uk-form-row">
-			<label class="uk-form-label">Host</label>	
-			<div class="uk-form-controls"><input type="text" id="host" name="host" value="" v-model="host" /></div>
-		</div>		
-		<div class="uk-form-row">
-			<label class="uk-form-label">Model</label>	
-			<div class="uk-form-controls">
-				<select class="llm-select" v-model="llm"> 
-					<option v-for="option in options" >
-					{{ option }}
-					</option>
-				</select>  
-			</div>
+    <div id="vue-app" class="llm-container">		 	
+	<div class="llm-page">
+		<div class="llm-header"> 
+			<label>Model</label>	
+			<select class="llm-select" v-model="llm"> 
+				<option v-for="option in options" >
+				{{ option }}
+				</option>
+			</select>   
 		</div>
-		<div class="uk-form-row llm-reply">
-			{{ textbox }}		
-		</div>
-		<div class="uk-form-row"><input type="checkbox" name="" v-model="inject" /> <label>Send to Word</label></div>
-		
-		<div class="uk-form-row uk-margin-large-top">
-			<label class="uk-form-label">Write something here</label>	
-			<textarea id="enquire" v-model="enquire" cols="50" rows="5" placeholder="write some text"> </textarea>			
-		</div>
-		<div class="uk-form-row">
-			<button class="uk-button llm-btn" v-on:click="send">Chat</button>  
-			<button class="uk-button llm-btn" v-on:click="clear">Clear</button> 			
-		</div>		
+		<div id="llm-dialog" class="llm-chat"></div> 
+		<div class="llm-compose">
+		    <div class="uk-grid uk-grid-small uk-width-1-1 ">
+				<div class=" uk-width-1-1"><textarea id="enquire" v-model="enquire" style="width: 100%; height: 80px; margin-bottom: 10px;" placeholder="write something"> </textarea>	</div>	
+				
+				<div class="uk-width-1-2 llm-footer">LLM Assist v0.1 by Stephen Yeung</div>				  
+				<div class="uk-width-1-2 uk-text-right">
+					<img src="images/del_icon.png" v-on:click="clear" width="24" /> 
+					<img src="images/send_icon.png" v-on:click="send" width="24" />  
+				</div>
+			</div>		
+	 	</div>
     </div>
-	<div id="footer">version 0.1 by Stephen Yeung</div>
+	</div>
+ 
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <script src="scripts/app.js?v=1.05"></script> 
 	<script src="scripts/vue.min.js"></script> 
 	<script type="module">
-		import { Ollama } from './scripts/ollama/browser.mjs?v=1.001';
+		import { Ollama } from '/scripts/ollama/browser.mjs?v=1.001';
 	    
 		const hostUrl =	'http://192.168.0.188:11434';	
 		const ollama = new Ollama({ host: hostUrl });
 		 
 		var app = new Vue({
                 el: '#vue-app',
-                data: {host: hostUrl, options: [], llm: "", enquire: "how are you", textbox: "", inject: false },
+                data: {options: [], llm: "", dialogue: [], enquire: "", textbox: "", lockObj: false },
                 methods: {
-                    send: function () { 
-						if (this.llm == "") return;
-						if (this.enquire == "") return;
+                    send: async function () {
+						if (this.lockObj) return;
+					
+						this.lockObj = true;						
+						this.textbox = "";
 						
-						ollama.chat({
-						  model: this.llm,
-						  messages: [{ role: 'user', content: this.enquire }],
-						}).then( json => {
-							let msg = json.message.content; 
-							
-							if (this.inject) {
-								sendToOffice(msg);
-							}
-							else {
-								this.textbox = msg;  
-							}
-						});					
+						this.dialogue.push({ role: 'user', content: this.enquire });						
+						this.bulidMsg(this.enquire, "llm-send");
+						
+						if (this.llm == "" || this.enquire == "") { 
+							this.lockObj = false;
+							return; 						
+						}
+					 
+						this.bulidMsg("think...", "llm-received");
+						let holder = document.getElementById("llm-dialog").lastChild;				
+						
+						const response = await ollama.chat({
+							model: this.llm,
+							messages: this.dialogue,
+							stream: true
+						});	
+						
+						for await (const part of response) {
+							this.textbox += part.message.content;							
+							holder.innerHTML = "<div>" + this.textbox + "</div>";
+						}
+						
+						//add message
+						this.dialogue.push({ role: 'assistant', content: this.textbox });
+									
+						this.enquire = "";
+						this.lockObj = false;
 					},
 					reload: function() {  
 						ollama.list().then( json => {
@@ -79,12 +89,23 @@
 						});				
 					},
 					clear: function() {
-						this.enquire = "";
+						this.enquire = "";					 
+					},
+					bulidMsg: function(str, flag) {
+							let html = `<div class="llm-message ${flag}"> 
+										<div>${str}</div>
+									</div`;
+									
+						let d = document.getElementById("llm-dialog");					 
+						
+						d.innerHTML += html;
 					}
 				}
 		});
 		
 		app.reload();
+		
+		 
 	
 	</script>
 </body>
