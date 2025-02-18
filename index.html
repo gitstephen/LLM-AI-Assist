@@ -36,15 +36,13 @@
 			<div class="uk-width-1-1 uk-margin-top">LLM Assist ver 0.2 copyright by Stephen Yeung</div>	
 		</div> 
     </div>
-</div> 
+</div>  
 
-<script src="scripts/jquery.min.js"></script> 
-<script src="scripts/vue.min.js"></script> 
-<script src="scripts/uikit.min.js"></script> 
+<script src="scripts/vue.min.js"></script>  
 <script type="module">
 import { Ollama } from './scripts/ollama/browser.mjs?v=1.001';
 	    
-const hostUrl =	'http://localhost:11434'; 
+const hostUrl =	'http://192.168.0.188:11434'; 
 const ollama = new Ollama({ host: hostUrl });
 		 
 	var app = new Vue({
@@ -69,8 +67,9 @@ const ollama = new Ollama({ host: hostUrl });
 						
 						this.clear();
 						
-						let answer = document.getElementById("llm-dialog").lastChild;				
-												
+						let answer = document.getElementById("llm-dialog").lastChild;										
+						let received = answer.querySelector('p');
+						
 						try
 						{
 							//create chat
@@ -79,16 +78,21 @@ const ollama = new Ollama({ host: hostUrl });
 								messages: this.dialogue,
 								stream: true
 							});						
+							
+							received.innerHTML = "";
+							
 							// get message
 							for await (const part of response) {
 								this.textbox += part.message.content;							
-								answer.innerHTML = "<div><b>" + this.llm + "</b><p>" + this.textbox + "</p></div>";
+								received.innerHTML += part.message.content;
 							}
 							
 							//add message to loop
 							this.dialogue.push({ role: 'assistant', content: this.textbox });
 						}
-						catch(err) { UIkit.modal.alert(err.message + ": cannot connect to ollama server."); }
+						catch(err) { 
+							alert(err.message + ": cannot connect to ollama server."); 
+						}
 						 
 						this.lockObj = false;
 					},
@@ -101,23 +105,26 @@ const ollama = new Ollama({ host: hostUrl });
 									this.options.push(item.name); 
 							});							
 						}
-						catch(err) { UIkit.modal.alert(err.message + ": cannot load model file."); }
+						catch(err) { 
+							alert(err.message + ": cannot load model file."); 
+						}
 								
 					},
 					clear: function() {
 						this.enquire = "";					 
 					},
-					bulidMsg: function(name, str, css) {
-						let html = `<div class="llm-message ${css}"> 
-										<div>
-										<b>${name}</b>
-										<p>${str}</p>										
-										</div>										 
-									</div>`;
-									
-						let d = document.getElementById("llm-dialog");					 
+					bulidMsg: function(name, str, css) { 									
+						var child = document.createElement("div");
+						child.setAttribute('class', 'llm-message ' + css); 
 						
-						d.innerHTML += html;
+						child.innerHTML = `<div>
+											<b>${name}</b>
+											<p>${str}</p>										
+										</div>`; 
+						
+						let parent = document.getElementById("llm-dialog");					 
+						
+						parent.appendChild(child);
 					},
 					pause: function() {
 						ollama.abort();
