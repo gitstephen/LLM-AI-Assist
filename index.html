@@ -5,108 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama LLM Assist</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
-	<link rel="stylesheet" href="styles/app.css" />	   
+	<link rel="stylesheet" href="styles/app.css?v=1.009" />	    
 </head>
 <body>
-    <div id="vue-app" class="llm-container">		 	
+<div id="vue-app" class="llm-container">		 	
 	<div class="llm-page">
 		<div class="llm-header"> 
-			<label>Model</label>	
-			<select class="llm-select" v-model="llm"> 
-				<option v-for="option in options" >
-				{{ option }}
-				</option>
-			</select>   
+			<div class="uk-grid uk-grid-collapse"> 
+				<div class="uk-width-3-4">
+					<img src="images/cpu_icon.svg?v=1.01" />
+					<select class="llm-model" v-model="llm" title="AI Model">  
+						<option v-for="option in options" >
+							{{ option }}
+						</option>
+					</select>  
+				</div>
+				<div class="uk-width-1-4 uk-text-right">				  
+					<button class="llm-btn-chat" v-on:click="pause" title="Pause"><img src="images/pause_icon.svg?v=1.01" alt="Pause" /></button> 
+				  
+					<button class="llm-btn-chat" title="New chat" v-on:click="reset"><img src="images/chat_icon.svg" /> </button> 
+				</div>
+			</div>			 
 		</div>
 		<div id="llm-dialog" class="llm-chat"></div> 
-		<div class="llm-compose">
-		    <div class="uk-grid uk-grid-small uk-width-1-1 ">
-				<div class=" uk-width-1-1"><textarea id="enquire" v-model="enquire" style="width: 100%; height: 80px; margin-bottom: 10px;" placeholder="write something"> </textarea>	</div>	
-				
-				<div class="uk-width-1-2 llm-footer">LLM Assist v0.1 by Stephen Yeung</div>				  
-				<div class="uk-width-1-2 uk-text-right">
-					<img src="images/del_icon.png" v-on:click="clear" width="24" /> 
-					<img src="images/send_icon.png" v-on:click="send" width="24" />  
-				</div>
-			</div>		
-	 	</div>
+		<div class="llm-footer">		 
+			<div class="llm-compose uk-width-1-1">
+				<textarea id="enquire" v-model="enquire" placeholder="write something"> </textarea>  
+				<button class="llm-btn" v-on:click="send" title="Send"><img src="images/send_icon.svg" alt="Pause" /> </button>
+			</div> 
+			<div class="uk-width-1-1 uk-margin-top">LLM Assist ver 0.2 copyright by Stephen Yeung</div>	
+		</div> 
     </div>
-	</div>
- 
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-    <script src="scripts/app.js?v=1.05"></script> 
-	<script src="scripts/vue.min.js"></script> 
-	<script type="module">
-		import { Ollama } from '/scripts/ollama/browser.mjs?v=1.001';
+</div> 
+
+<script src="scripts/jquery.min.js"></script> 
+<script src="scripts/vue.min.js"></script> 
+<script src="scripts/uikit.min.js"></script> 
+<script type="module">
+import { Ollama } from './scripts/ollama/browser.mjs?v=1.001';
 	    
-		const hostUrl =	'http://192.168.0.188:11434';	
-		const ollama = new Ollama({ host: hostUrl });
+const hostUrl =	'http://localhost:11434'; 
+const ollama = new Ollama({ host: hostUrl });
 		 
-		var app = new Vue({
-                el: '#vue-app',
+	var app = new Vue({
+				el: '#vue-app',
                 data: {options: [], llm: "", dialogue: [], enquire: "", textbox: "", lockObj: false },
                 methods: {
                     send: async function () {
 						if (this.lockObj) return;
-					
+						if (this.llm == "" || this.enquire == "") { 
+								this.lockObj = false;
+								return; 						
+						}
+							
 						this.lockObj = true;						
 						this.textbox = "";
 						
-						this.dialogue.push({ role: 'user', content: this.enquire });						
-						this.bulidMsg(this.enquire, "llm-send");
+						//create message
+						this.dialogue.push({ role: 'user', content: this.enquire });		
 						
-						if (this.llm == "" || this.enquire == "") { 
-							this.lockObj = false;
-							return; 						
+						this.bulidMsg('', this.enquire, "llm-send");					 
+						this.bulidMsg(this.llm, '<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
+						
+						this.clear();
+						
+						let answer = document.getElementById("llm-dialog").lastChild;				
+												
+						try
+						{
+							//create chat
+							const response = await ollama.chat({
+								model: this.llm,
+								messages: this.dialogue,
+								stream: true
+							});						
+							// get message
+							for await (const part of response) {
+								this.textbox += part.message.content;							
+								answer.innerHTML = "<div><b>" + this.llm + "</b><p>" + this.textbox + "</p></div>";
+							}
+							
+							//add message to loop
+							this.dialogue.push({ role: 'assistant', content: this.textbox });
 						}
-					 
-						this.bulidMsg("think...", "llm-received");
-						let holder = document.getElementById("llm-dialog").lastChild;				
-						
-						const response = await ollama.chat({
-							model: this.llm,
-							messages: this.dialogue,
-							stream: true
-						});	
-						
-						for await (const part of response) {
-							this.textbox += part.message.content;							
-							holder.innerHTML = "<div>" + this.textbox + "</div>";
-						}
-						
-						//add message
-						this.dialogue.push({ role: 'assistant', content: this.textbox });
-									
-						this.enquire = "";
+						catch(err) { UIkit.modal.alert(err.message + ": cannot connect to ollama server."); }
+						 
 						this.lockObj = false;
 					},
-					reload: function() {  
-						ollama.list().then( json => {
-							json.models.forEach( item => {
-								this.options.push(item.name); 
-							});		
+					list: async function() {  
+						try 
+						{
+							let json = await ollama.list(); 
 							
-						});				
+							json.models.forEach( item => {
+									this.options.push(item.name); 
+							});							
+						}
+						catch(err) { UIkit.modal.alert(err.message + ": cannot load model file."); }
+								
 					},
 					clear: function() {
 						this.enquire = "";					 
 					},
-					bulidMsg: function(str, flag) {
-							let html = `<div class="llm-message ${flag}"> 
-										<div>${str}</div>
-									</div`;
+					bulidMsg: function(name, str, css) {
+						let html = `<div class="llm-message ${css}"> 
+										<div>
+										<b>${name}</b>
+										<p>${str}</p>										
+										</div>										 
+									</div>`;
 									
 						let d = document.getElementById("llm-dialog");					 
 						
 						d.innerHTML += html;
+					},
+					pause: function() {
+						ollama.abort();
+					},
+					reset: function() {
+						this.dialogue.length = 0;
+						
+					    let d = document.getElementById("llm-dialog");		
+						d.innerHTML = "";
 					}
 				}
 		});
 		
-		app.reload();
-		
-		 
-	
+		app.list();	
 	</script>
 </body>
 </html>
