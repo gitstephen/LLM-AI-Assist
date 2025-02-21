@@ -29,7 +29,7 @@ export function ChatClient(url) {
 	}
 	
 	//chat
-	this.Send = async function(llm, message, continuous, functions) { 		
+	this.Send = async function(llm, message, looping, tools_call) { 	
 		this.checkOllama();
 		
 		this.Dialogue.push({ role: 'user', content: message });	
@@ -39,24 +39,28 @@ export function ChatClient(url) {
 			this.onBegin();
 		}
 		
+		if (looping) {
+			tools_call = [];
+		}
+		
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,
 			messages: this.Dialogue,
-			stream: continuous, 
+			stream: looping, 
 			keep_alive: '10m', 
 			options: { num_ctx: 4096, temperature: 0 },
-			tools: functions
+			tools: tools_call
 		});	 		
 		
 		if (this.onResult != null) {
 			this.onResult();
 		}
 					
-		if (continuous) {
+		if (looping) {
 			// get message
-			for await (const part of response) { 			
-				this.recevStr += part.message.content;			
+			for await (const part of response) {  
+				this.recevStr += part.message.content; 
 				 
 				if (this.onReceive != null) {
 					this.onReceive(part.message.content);
@@ -99,7 +103,7 @@ export function ChatClient(url) {
 		
 		if (this.onDispose != null) {
 			this.onDispose();
-		}			
+		} 
 	}
 	
 	this.checkOllama = function() {

@@ -1,8 +1,8 @@
-Office.onReady((info) => {
+/* Office.onReady((info) => {
     if (info.host === Office.HostType.Word) {
         sendToOffice("AI assistant");
     }
-});
+}); */
 
 function sendToOffice(str) {	
 	Word.run(async (context) => {
@@ -18,3 +18,37 @@ function sendToOffice(str) {
     })
     .catch(errorHandler);
 }
+
+// Tools definition for add function
+const addTwoNumbersTool = {
+    type: 'function',
+    function: {
+        name: 'addTwoNumbers',
+        description: 'Add two numbers together',
+        parameters: {
+            type: 'object',
+            required: ['a', 'b'],
+            properties: {
+                a: { type: 'number', description: 'The first number' },
+                b: { type: 'number', description: 'The second number' }
+            }
+        }
+    }
+};
+
+// Tools definition for subtract function
+const subtractTwoNumbersTool = {
+    type: 'function',
+    function: {
+        name: 'subtractTwoNumbers',
+        description: 'Subtract two numbers',
+        parameters: {
+            type: 'object',
+            required: ['a', 'b'],
+            properties: {
+                a: { type: 'number', description: 'The first number' },
+                b: { type: 'number', description: 'The second number' }
+            }
+        }
+    }
+};

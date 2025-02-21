@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama LLM Assist</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
-	<link rel="stylesheet" href="styles/app.css?v=1.020" />	    
+	<link rel="stylesheet" href="styles/app.css?v=1.027" />	   
 </head>
 <body>
 <div id="vue-app" class="llm-container"> 
@@ -27,79 +27,59 @@
 	<div id="llm-dialog" class="llm-chat uk-width-xlarge-1-2"></div> 
 	<div class="llm-footer">		 
 		<div class="llm-compose uk-width-xlarge-1-2 uk-align-center">
-			<textarea id="enquire" v-model="enquire" placeholder="write something"> </textarea>  
-			<button id="send" class="llm-btn" v-show="!state" v-on:click="send" title="Send"><img src="images/send_icon.svg" alt="Pause" /></button>
-			<button id="pause" class="llm-btn" v-show="state" v-on:click="pause" title="Pause"><img src="images/pause_icon.svg?v=1.02" alt="Pause" /></button> 
+			<div class="uk-width-1-1 uk-flex uk-flex-top llm-textarea">			    
+				<textarea id="enquire" v-model="enquire" placeholder="write something"> </textarea> 
+			
+				<button id="send" class="llm-btn" v-show="!state" v-on:click="send" title="Send"><img src="images/upload_icon.svg" alt="Pause" /></button>
+				<button id="pause" class="llm-btn" v-show="state" v-on:click="pause" title="Pause"><img src="images/pause_icon.svg?v=1.02" alt="Pause" /></button> 
+			</div> 			
+			<div class="llm-tools">
+				<input type="checkbox" id="switch" role="switch" v-model="looping" />
+				<label for="switch" class="btn-toggle"><span>Tools</span></label>
+			</div>
 		</div> 
 		<div class="uk-width-1-1 ">LLM Assist ver 0.21 copyright by Stephen Yeung</div>	
 	</div>    
 </div>  
+<script src="scripts/app.js"></script> 
 <script src="scripts/vue.min.js"></script>  
 <script type="module"> 
-import { ChatClient } from './scripts/chatclient.js?v=1.020';
+import { ChatClient } from './scripts/chatclient.js?v=1.023';
 
 var app, textbox;
 
-const tt_s = 1000*1000*1000;
-const host = 'http://localhost:11434'; 
+const host = 'http://localhost:11434';  
+const tt_s = 1000 * 1000 * 1000;
 
-// Tools definition for add function
-const addTwoNumbersTool = {
-    type: 'function',
-    function: {
-        name: 'addTwoNumbers',
-        description: 'Add two numbers together',
-        parameters: {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: {
-                a: { type: 'number', description: 'The first number' },
-                b: { type: 'number', description: 'The second number' }
-            }
-        }
-    }
-};
+const availableFunc = [addTwoNumbersTool, subtractTwoNumbersTool]; 
 
-// Tools definition for subtract function
-const subtractTwoNumbersTool = {
-    type: 'function',
-    function: {
-        name: 'subtractTwoNumbers',
-        description: 'Subtract two numbers',
-        parameters: {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: {
-                a: { type: 'number', description: 'The first number' },
-                b: { type: 'number', description: 'The second number' }
-            }
-        }
-    }
-};
- 
-const mathFunctions = {
+const func_list = {
 	addTwoNumbers: (args) => { return args.a + args.b; },
 	subtractTwoNumbers: (args) => { return args.a - args.b; }
 }; 
  
 const client = new ChatClient(host);
 
-client.onBegin = async function() {
+// chat start 
+client.onBegin = async () => {
 	app.enquire = ""; 
 }
 
-client.onResult = async function(str) {
+// chat response result 
+client.onResult = async (str) => {
 	let dialog = document.getElementById("llm-dialog").lastChild;
 	
 	textbox = dialog.querySelector('p');  
 	textbox.innerHTML = "";	  
 }
 
-client.onReceive = async function(str) {
+//char message receive
+client.onReceive = async (str) => {
 	textbox.textContent += str;	 
 } 
 
-client.onEnd = async function(response) { 
+//char end
+client.onEnd = async (response) => { 
 	console.log(response);
 	
 	if (response.message.tool_calls) { 
@@ -108,7 +88,7 @@ client.onEnd = async function(response) {
         for (const tool of response.message.tool_calls) {
             let func = tool.function;
 			
-			const callFunc = mathFunctions[func.name];	 
+			const callFunc = func_list[func.name];	 
             if (callFunc) {
 			    textbox.innerHTML += 'The result is: ' + callFunc(func.arguments); 
             } else {
@@ -124,14 +104,16 @@ client.onEnd = async function(response) {
 	textbox.innerHTML += "<span>" + token.toFixed(2) + " t/s, " +  dt.toFixed(2) + 's </span>'; 
 }
 
-client.onDispose = async function() {
+//chat clear
+client.onDispose = async () => {
 	let d = document.getElementById("llm-dialog");		
 	d.innerHTML = "";
 } 
+ 
 
 app = new Vue({
 		el: '#vue-app',
-		data: {options: [],  llm: "", enquire: "", state: false },
+		data: { options: [],  llm: "", enquire: "", state: false, looping: false },
 		methods: {		
 			send: async function () {
 				if (this.state) return;
@@ -149,26 +131,26 @@ app = new Vue({
 				  
 				try { 
 					//send message
-					await client.Send(this.llm, message, false, [addTwoNumbersTool, subtractTwoNumbersTool]); 
+					await client.Send(this.llm, message, !this.looping, availableFunc); 
 				}
-				catch(err) {					
+				catch(err) { 
 					alert(err.message);	
 				}
 				
-				this.state = false;						 
+				this.state = false;	 
 			},
-			list: async function() {  
+			list: async function() {
 				try {
 					let list = await client.GetModels(); 
 						
 					list.forEach( item => {
 						this.options.push(item); 
-					});							
+					});	 
 				}
 				catch(err) {
 					alert(err.message);
 				}							
-			},					 
+			},
 			addText: function(name, str, css) {
 				var child = document.createElement("div");
 				child.setAttribute('class', 'llm-message ' + css); 
