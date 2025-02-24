@@ -48,7 +48,7 @@ export function ChatClient(url) {
 			model: llm,
 			messages: this.Dialogue,
 			stream: looping, 
-			keep_alive: '10m', 
+			keep_alive: '30m', 
 			options: { num_ctx: 4096, temperature: 0 },
 			tools: tools_call
 		});	 		
@@ -56,34 +56,14 @@ export function ChatClient(url) {
 		if (this.onResult != null) {
 			this.onResult();
 		}
-					
+
 		if (looping) {
 			// get message
-			for await (const part of response) {  
-				this.recevStr += part.message.content; 
-				 
-				if (this.onReceive != null) {
-					this.onReceive(part.message.content);
-				}		 
-				
-				if (part.done) {
-					if (this.onEnd != null) {
-						this.onEnd(part);
-					}
-				}
+			for await (const part of response) {   
+				this.output(part);				
 			}	 
-		}	
-		else 
-		{
-			if (this.onReceive != null) {
-				this.onReceive(response.message.content);
-			}	
-
-			if (response.done) {
-				if (this.onEnd != null) {
-					this.onEnd(response);
-				}
-			}
+		} else {
+			this.output(response); 
 		}	
 		
 		//add message to loop
@@ -111,4 +91,18 @@ export function ChatClient(url) {
 			this.ollama = new Ollama({ host: this.Host });
 		}
 	} 
+	
+	this.output = function(response) {
+		this.recevStr += response.message.content; 
+		
+		if (this.onReceive != null) {
+			this.onReceive(response.message.content);
+		}		 
+		
+		if (response.done) {
+			if (this.onEnd != null) {
+				this.onEnd(response);
+			}
+		}
+	}
 };

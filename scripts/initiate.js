@@ -62,48 +62,45 @@ const func_list = {
 	subtractTwoNumbers: (args) => { return args.a - args.b; }
 };  
 
-var textbox;
+
 
 const host = 'http://localhost:11434';  
 const tt_s = 1000 * 1000 * 1000;
  
-const client = new ChatClient(host);
-
+var client = new ChatClient(host);
+ 
 // chat start 
 client.onBegin = async () => {
-	$("#enquire").val("");
-	$("#chat-send").hide();
-	$("#chat-pause").show();
+	$("#enquire").val(""); 
 }
 
 // chat response result 
 client.onResult = async (str) => {
 	let dialog = document.getElementById("llm-dialog").lastChild;
 	
-	textbox = dialog.querySelector('p');  
-	textbox.innerHTML = "";	  
+	client.chars = dialog.querySelector('p');  
+	client.chars.innerHTML = "";	  
 }
 
 //char message receive
-client.onReceive = async (str) => {
-	textbox.textContent += str;	 
+client.onReceive = async function(str) {  
+	client.chars.append(str);
 } 
 
 //char end
 client.onEnd = async (response) => { 
 	console.log(response);
 	
-	if (response.message.tool_calls) { 
-	
+	if (response.message.tool_calls) { 	
         // Process tool calls from the response
         for (const tool of response.message.tool_calls) {
             let func = tool.function;
 			
 			const callFunc = func_list[func.name];	 
             if (callFunc) {
-			    textbox.innerHTML += 'The result is: ' + callFunc(func.arguments); 
+			    client.chars.innerHTML += 'The result is: ' + callFunc(func.arguments); 
             } else {
-                textbox.innerHTML += 'Function ' + func.name + ' not found';
+                client.chars.innerHTML += 'Function ' + func.name + ' not found';
             }
         }
 	}
@@ -112,11 +109,10 @@ client.onEnd = async (response) => {
 	let dt = response.eval_duration / tt_s;
 	let token = response.eval_count / response.eval_duration * tt_s;
 	
-	textbox.innerHTML += "<span>" + token.toFixed(2) + " t/s, " +  dt.toFixed(2) + 's </span>'; 
+	client.chars.innerHTML += "<span>" + token.toFixed(2) + " t/s, " +  dt.toFixed(2) + 's </span>'; 
 	
 	$("#chat-send").show();
-	$("#chat-pause").hide();
-	
+	$("#chat-pause").hide();	
 }
 
 //chat clear
