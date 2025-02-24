@@ -65,7 +65,7 @@ var App = function(client) {
 			} 
 		}
 		catch(err) {
-			this.showError("Error: " + err.message);
+			alert("Error: " + err.message);
 		} 
 	}; 
 	

@@ -63,7 +63,6 @@ const func_list = {
 };  
 
 
-
 const host = 'http://localhost:11434';  
 const tt_s = 1000 * 1000 * 1000;
  

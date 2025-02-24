@@ -79,6 +79,7 @@ body {
 .llm-message p { 
 	line-height: 22px;
 	overflow-wrap: break-word;
+	white-space: pre-line;
 	margin: 0;
 }
 
@@ -185,6 +186,7 @@ body {
 textarea {
 	width: 95%; 
 	border: none;
+	font-size: 16px;
 }  
 
 textarea:focus {
