@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" >  
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >    
     <title>Ollama LLM Assist</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
 	<link rel="stylesheet" href="styles/app.css?v=1.027" />	   
@@ -14,14 +13,11 @@
 		<div class="uk-grid uk-grid-collapse"> 
 			<div class="uk-width-3-4">
 				<img src="images/cpu_icon.svg?v=1.01" />
-				<select class="llm-model" v-model="llm" title="AI Model">  
-					<option v-for="option in options" >
-						{{ option }}
-					</option>
+				<select id="chat-model" class="llm-model" title="AI Model">
 				</select>  
 			</div>
 			<div class="uk-width-1-4 uk-text-right">				  
-				<button class="llm-btn-chat" title="New chat" v-on:click="reset"><img src="images/chat_icon.svg" /> </button> 
+				<button id="chat-clear" class="llm-btn-chat" title="New chat" ><img src="images/chat_icon.svg" /> </button> 
 			</div>
 		</div>			 
 	</div>
@@ -29,21 +25,21 @@
 	<div class="llm-footer">		 
 		<div class="llm-compose uk-width-xlarge-1-2 uk-align-center">
 			<div class="uk-width-1-1 uk-flex uk-flex-top llm-textarea">			    
-				<textarea id="enquire" v-model="enquire" placeholder="write something"> </textarea> 
+				<textarea id="enquire" placeholder="write something"> </textarea> 
 			
-				<button id="send" class="llm-btn" v-show="!state" v-on:click="send" title="Send"><img src="images/upload_icon.svg" alt="Pause" /></button>
-				<button id="pause" class="llm-btn" v-show="state" v-on:click="pause" title="Pause"><img src="images/pause_icon.svg?v=1.02" alt="Pause" /></button> 
+				<button id="chat-send" class="llm-btn" title="Send"><img src="images/upload_icon.svg" alt="Pause" /></button>
+				<button id="chat-pause" class="llm-btn" title="Pause" style="display: none"><img src="images/pause_icon.svg?v=1.02" alt="Pause" /></button> 
 			</div> 			
 			<div class="llm-tools">
-				<input type="checkbox" id="switch" role="switch" v-model="looping" />
-				<label for="switch" class="btn-toggle"><span>Tools</span></label>
+				<input type="checkbox" id="chat-switch" role="switch" />
+				<label for="chat-switch" class="btn-toggle"><span>Tools</span></label>
 			</div>
 		</div> 
 		<div class="uk-width-1-1 ">LLM Assist ver 0.21 copyright by Stephen Yeung</div>	
 	</div>    
 </div>
-<script src="scripts/vue.min.js" ></script>    
-<script src="scripts/initiate.js" ></script>  
-<script type="module" src="scripts/app.js?v=76g3q43gg4ye4wh"></script>    
+<script type="module" src="scripts/initiate.js?v=1000345"></script> 
+<script src="scripts/jquery.min.js" ></script>  
+<script src="scripts/app.js?v=455473237"></script>    
 </body>
 </html>
