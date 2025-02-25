@@ -6,7 +6,7 @@ var App = function(client) {
 	this.looping = false;
 	this.tools = null;
 	
-	this.addText = (str, css) => {
+	this.addText = async (str, css) => {
 		let child = document.createElement("div");
 		child.setAttribute('class', 'llm-message ' + css); 	 
 	 
@@ -25,11 +25,8 @@ var App = function(client) {
 		let llm = $("#chat-model option:selected").text();
 		let enquire = $("#enquire").val();
 		
-		if (llm == "" || enquire == "") {  
-			alert("please select a model and input the text");	
-			return;
-		}
-			
+		if (llm == "" || enquire == "") return;
+		
 		this.state = true;	 
 		this.changeState();
 		
@@ -44,7 +41,7 @@ var App = function(client) {
 			await this.stream.Send(llm, message, !this.looping, this.tools); 
 		}
 		catch(err) { 
-			this.showError("Error: " + err.message); 
+			this.addText(err.message, "llm-received llm-error");  
 		}
 		
 		this.state = false;	 
@@ -61,7 +58,7 @@ var App = function(client) {
 			} 
 		}
 		catch(err) {
-			alert("Error: " + err.message);
+			this.addText("Not found AI model", "llm-received llm-error");	
 		} 
 	}; 
 	
@@ -78,15 +75,8 @@ var App = function(client) {
 	this.changeState = () => {	 
 		$("#chat-send").toggle();
 		$("#chat-pause").toggle();	 
-	}
-	
-	this.showError = (msg) => {  
-		this.addText(msg, "llm-received llm-error"); 
-		
-		this.changeState();
-	};
+	} 
 };
-
 
 var chatApp;
 
