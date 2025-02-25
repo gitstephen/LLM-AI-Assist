@@ -1,25 +1,25 @@
 var App = function(client) {
-	this.stream = client;
 	
+	this.stream = client;
+		
 	this.state = false;
 	this.looping = false;
 	this.tools = null;
 	
-	this.addText = (name, str, css) => {
+	this.addText = (str, css) => {
 		let child = document.createElement("div");
-		child.setAttribute('class', 'llm-message ' + css); 
-		
-		child.innerHTML = `<div>
-							<b>${name}</b>
-							<p>${str}</p> 
-						</div>`; 
+		child.setAttribute('class', 'llm-message ' + css); 	 
+	 
+		child.innerHTML = `<div> 
+					<p>${str}</p> 
+				</div>`; 
 		
 		let parent = document.getElementById("llm-dialog");	
 		
 		parent.appendChild(child); 
 	};	
 
-	this.send = async () => {
+	this.get = async () => {
 		if (this.state) return;
 		
 		let llm = $("#chat-model option:selected").text();
@@ -36,8 +36,8 @@ var App = function(client) {
 		//start chat
 		let message = enquire;
 		
-		this.addText('', message, "llm-send");	
-		this.addText(llm, '<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
+		this.addText(message, "llm-send");	
+		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
 		  
 		try { 
 			//send message
@@ -52,13 +52,9 @@ var App = function(client) {
 		
 	this.list = async () => {
 		try {
-			let data = await this.stream.GetModels(); 
-			
-			$('#chat-model').append(
-				$('<option>', {	value: -1, text: "" })
-			); 
+			let data = await this.stream.GetModels();  
 				
-			for(var i = 0; i < data.length; i++ ) {			 
+			for(var i = 0; i < data.length; i++ ) { 
 				$('#chat-model').append(
 					$('<option>', {	value: i, text: data[i] })
 				); 
@@ -81,11 +77,11 @@ var App = function(client) {
 	
 	this.changeState = () => {	 
 		$("#chat-send").toggle();
-		$("#chat-pause").toggle();		 		
+		$("#chat-pause").toggle();	 
 	}
 	
 	this.showError = (msg) => {  
-		this.stream.chars.innerHTML += "<br />" + msg; 
+		this.addText(msg, "llm-received llm-error"); 
 		
 		this.changeState();
 	};
@@ -98,7 +94,7 @@ addEventListener("DOMContentLoaded", () => {
 	chatApp = new App(client); 
 
 	$('#chat-send').click(function() { 
-		chatApp.send();	 
+		chatApp.get();	 
 	});
 	
 	$('#chat-pause').click(function() {

@@ -1,12 +1,13 @@
-import { Ollama } from './ollama/browser.mjs';
+import { Ollama } from './browser.mjs';
  
-export function ChatClient(url) { 
+export function ChatClient(url, options) { 
 	this.Host = url;
 	this.Dialogue = []; 
+	this.Setting = options; 
+	
 	this.recevStr = "";
-		
 	this.ollama = null; 
-		
+
 	//event	
 	this.onBegin = null;	
 	this.onEnd = null;
@@ -17,7 +18,7 @@ export function ChatClient(url) {
 	//Get model list
 	this.GetModels = async function() {
 		this.checkOllama();
-			
+
 		let list = [];				 
 		let json = await this.ollama.list(); 
 		
@@ -48,8 +49,8 @@ export function ChatClient(url) {
 			model: llm,
 			messages: this.Dialogue,
 			stream: looping, 
-			keep_alive: '30m', 
-			options: { num_ctx: 4096, temperature: 0 },
+			keep_alive: this.Setting.alive, 
+			options: { num_ctx: this.Setting.context, temperature: this.Setting.random },
 			tools: tools_call
 		});	 		
 		

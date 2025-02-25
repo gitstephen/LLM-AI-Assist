@@ -1,4 +1,4 @@
-import { ChatClient } from './chatclient.js';
+import { ChatClient } from './ollama/chatclient.js';
 
 /* Office.onReady((info) => {
     if (info.host === Office.HostType.Word) {
@@ -62,22 +62,23 @@ const func_list = {
 	subtractTwoNumbers: (args) => { return args.a - args.b; }
 };  
 
-
-const host = 'http://localhost:11434';  
 const tt_s = 1000 * 1000 * 1000;
- 
-var client = new ChatClient(host);
+const options = { alive: "2h", context: 8192, random: 0.7 };
+
+const client = new ChatClient('http://localhost:11434', options); 
  
 // chat start 
 client.onBegin = async () => {
-	$("#enquire").val(""); 
+	$("#enquire").val(""); 	
+	
+	let dialog = document.getElementById("llm-dialog").lastChild;
+	
+	client.chars = dialog.querySelector('p');  
 }
 
 // chat response result 
 client.onResult = async (str) => {
-	let dialog = document.getElementById("llm-dialog").lastChild;
-	
-	client.chars = dialog.querySelector('p');  
+
 	client.chars.innerHTML = "";	  
 }
 
