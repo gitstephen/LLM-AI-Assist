@@ -67,6 +67,11 @@ const options = { alive: "2h", context: 8192, random: 0.7 };
 
 const client = new ChatClient('http://localhost:11434', options); 
  
+client.changeState = async () => {
+	$("#chat-send").toggle();
+	$("#chat-pause").toggle();	 
+}	
+
 // chat start 
 client.onBegin = async () => {
 	$("#enquire").val(""); 	
@@ -74,6 +79,8 @@ client.onBegin = async () => {
 	let dialog = document.getElementById("llm-dialog").lastChild;
 	
 	client.chars = dialog.querySelector('p');  
+	
+	client.changeState(); 
 }
 
 // chat response result 
@@ -110,9 +117,8 @@ client.onEnd = async (response) => {
 	let token = response.eval_count / response.eval_duration * tt_s;
 	
 	client.chars.innerHTML += "<span>" + token.toFixed(1) + " tok/s, " +  dt.toFixed(2) + 's </span>'; 
-	
-	$("#chat-send").show();
-	$("#chat-pause").hide();	
+ 
+	client.changeState();
 }
 
 //chat clear

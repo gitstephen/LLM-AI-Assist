@@ -26,9 +26,8 @@ var App = function(client) {
 		let enquire = $("#enquire").val();
 		
 		if (llm == "" || enquire == "") return;
-		
-		this.state = true;	 
-		this.changeState();
+				 
+		this.state = true;
 		
 		//start chat
 		let message = enquire;
@@ -41,10 +40,11 @@ var App = function(client) {
 			await this.stream.Send(llm, message, !this.looping, this.tools); 
 		}
 		catch(err) { 
-			this.addText(err.message, "llm-received llm-error");  
+			this.addText(err.message, "llm-received llm-error");  			
+			this.stream.changeState();
 		}
-		
-		this.state = false;	 
+				 
+		this.state = false;
 	};		  
 		
 	this.list = async () => {
@@ -70,12 +70,7 @@ var App = function(client) {
 		if (!this.state) {
 			this.stream.Reset();
 		} 
-	};		
-	
-	this.changeState = () => {	 
-		$("#chat-send").toggle();
-		$("#chat-pause").toggle();	 
-	} 
+	};		 
 };
 
 var chatApp;
@@ -83,7 +78,7 @@ var chatApp;
 addEventListener("DOMContentLoaded", () => {  
 	chatApp = new App(client); 
 
-	$('#chat-send').click(function() { 
+	$('#chat-send').click(function() {  
 		chatApp.get();	 
 	});
 	
