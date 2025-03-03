@@ -15,6 +15,7 @@
 body { 
   min-height: 100vh;   
   font-family: arial;
+  overflow-x: hidden; 
 } 
 
 .llm-container {
@@ -30,7 +31,7 @@ body {
 .llm-header {   
 	width: 100%; 
 	color: #ffffff;
-	background: #009688;
+	background: #000000;
 	padding: 15px;
 }   
 
@@ -114,6 +115,16 @@ body {
 	margin-left: 5%;
 	min-width: 50px;
 } 
+
+.llm-send > div::after {		 
+	content: '';
+	position: absolute;
+	top: 3px;
+	right: -30px;
+	width: 24px;
+	height: 24px;
+	background: url('../images/user_icon.svg');
+}
 	
 .llm-received {
    justify-content: flex-start;  	   
@@ -161,12 +172,7 @@ body {
 	padding: 5px;
 	border-radius: 5px;
 	width: auto;
-}
-
-.llm-btn-chat {
-	background: none;
-	border: 0;
-	padding: 2px;
+	min-width: 200px;
 }
 
 .llm-textarea {	
@@ -178,6 +184,36 @@ body {
 	background-color: #ffffff;		
 }
 	
+.llm-tools {
+	position: relative; 
+	text-align: left;
+}
+
+.llm-label {
+	display: block;
+	margin-bottom: 10px;
+	color: #808080;
+}
+
+.llm-input {
+	padding: 10px;
+	border: 1px solid #808080;
+	border-radius: 5px;	 
+	width: 100%;
+}
+
+.slide-panel {
+	position: absolute;
+	top: 0;
+	right: -600px;
+	z-index: 999;
+	background: #ffffff;
+	padding: 20px;
+	width: 300px;
+	height: 100%; 
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+} 
+
 textarea {
 	width: 97%; 
 	border: none;
@@ -188,11 +224,7 @@ textarea {
 textarea:focus {
 	outline: none !important;
 }
-
-.llm-tools {
-	position: relative; 
-	text-align: left;
-}
+ 
 
 input[type=checkbox]{
 	height: 0;
@@ -200,7 +232,7 @@ input[type=checkbox]{
 	visibility: hidden;
 }
 
-label {
+.btn-toggle {
 	color: #000000;
 	cursor: pointer;
 	text-indent: 45px;
@@ -212,12 +244,12 @@ label {
 	position: relative;
 }
 
-label > span {
+.btn-toggle > span {
 	display: block;
 	padding: 3px 0; 
 }
 
-label:after {
+.btn-toggle:after {
 	content: '';
 	position: absolute;
 	top: 3px;
@@ -238,6 +270,7 @@ input:checked + label:after {
 	transform: translateX(-100%);
 }
 
-label:active:after {
+.btn-toggle:active:after {
 	width: 20px;
 } 
+

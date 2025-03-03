@@ -1,7 +1,6 @@
 import { Ollama } from './browser.mjs';
  
-export function ChatClient(url, options) { 
-	this.Host = url;
+export function ChatClient(options) {  
 	this.Dialogue = []; 
 	this.Setting = options; 
 	
@@ -82,14 +81,52 @@ export function ChatClient(url, options) {
 	this.Reset = function() {
 		this.Dialogue.length = 0;
 		
-		if (this.onDispose != null) {
-			this.onDispose();
+		if (this.onClear != null) {
+			this.onClear();
 		} 
+	}
+		
+	this.Pull = async function(model) {
+		this.checkOllama();
+	
+		if (this.onDownload != null) {
+			this.onDownload();
+		}
+		
+		const stream = await this.ollama.pull({ model: model, stream: true })
+		
+		let percent = 0;
+		 
+		for await (const part of stream) {
+			if (part.digest) {
+				if (part.completed && part.total) {
+					percent = Math.round((part.completed / part.total) * 100);
+				}  
+			}
+			
+			if (this.onFileStream != null) {
+				this.onFileStream(part.status, percent);
+			}
+		}
+		
+		return "success";
+	}
+	
+	this.Remove = async function(model) {
+		this.checkOllama();
+		
+		return await this.ollama.delete({model: model});  
+	}		
+	
+	this.Dispose = function() {
+		this.ollama = null;
+		
+		this.Reset();
 	}
 	
 	this.checkOllama = function() {
 		if (this.ollama == null) {
-			this.ollama = new Ollama({ host: this.Host });
+			this.ollama = new Ollama({ host: this.Setting.host });
 		}
 	} 
 	

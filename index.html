@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" >    
-    <title>Ollama LLM Assist</title>    
+    <title>LLChat</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
 	<link rel="stylesheet" href="styles/app.css?v=1.030" />	   
 </head>
@@ -13,11 +13,12 @@
 		<div class="uk-grid uk-grid-collapse uk-flex-middle"> 
 			<div class="uk-width-4-5">
 				<img src="images/cpu_icon.svg?v=1.01" alt="AI" /> 
-				<span class="llm-title">Ollama LLM Assist</span>
+				<span class="llm-title">LLChat - Ollama Assistant</span>
 				<select id="chat-model" class="llm-model" title="AI Model"></select>   
 			</div>
 			<div class="uk-width-1-5 uk-text-right">				  
-				<button id="chat-clear" class="llm-btn-chat" title="New chat" ><img src="images/chat_icon.svg" alt="chat" /></button> 
+				<button id="chat-clear" class="llm-btn" title="New chat" ><img src="images/chat_icon.svg" alt="chat" /></button> 
+				<button id="chat-setting" class="llm-btn" title="Setting" ><img src="images/setting_icon.svg" alt="setting" /></button> 
 			</div>
 		</div>			 
 	</div>
@@ -36,6 +37,46 @@
 		</div> 
 		<div class="uk-width-1-1 ">LLM Assist ver 0.21 copyright by Stephen Yeung</div>	
 	</div>    
+	<div id="llm-setting" class="slide-panel">
+		<div class="uk-text-right">
+			<button id="setting-close" class="llm-btn" title="Close"><image src="images/close_icon.svg" alt="close" /></button> 
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">Ollama Host</span>
+			<input type="text" id="host" class="llm-input" name="host" value="" />
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">Keep Alive</span>
+			<input type="" id="alive" class="llm-input" name="alive" value="" />
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">Temperature</span>
+			<input type="" id="random" class="llm-input" name="random" value="" />
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">Context Length</span>
+			<input type="" id="ctxnum" class="llm-input" name="ctxnum" value="" />
+		</div>
+		<div class="uk-form-row uk-text-right">
+			<button id="setting-save" class="uk-button">Save</button> 
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">AI Model</span>
+			<div class="uk-grid uk-grid-small">
+				<div class="uk-width-4-5"><select id="ai-model" class="llm-model" title="AI Model"></select> </div>
+				<div class="uk-width-1-5"><button id="setting-del" class="llm-btn" title="Delete"><image src="images/trash_icon.svg" /></button> </div>
+			</div>
+		</div>
+		<div class="uk-form-row">
+			<span class="llm-label">Download</span>
+			<div class="uk-grid uk-grid-small">
+				<div class="uk-width-4-5"><input type="text" id="llm-pull" class="llm-input" name="download" value="" /> </div>
+				<div class="uk-width-1-5"><button id="chat-pull" class="llm-btn" title="Pull"><image src="images/pull_icon.svg" /></button></div>
+				<p id="llm-precent" class="uk-width-1-1 uk-margin"></p>
+			</div>
+			 
+		</div>
+	</div>
 </div>
 <script type="module" src="scripts/initiate.js?v=1730345"></script> 
 <script src="scripts/jquery.min.js" ></script>  

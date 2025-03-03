@@ -1,6 +1,6 @@
 {
-	"name": "Ollama LLM Assist",
-	"description": "This extension for connect Ollama local server",
+	"name": "LLChat - Ollama Assistant",
+	"description": "LLChat is LLM chat assistant for ollama",
 	"version": "0.1",
 	"manifest_version": 3,
 	"action": {
@@ -17,5 +17,5 @@
 		"48": "images/icon-48.png",
 		"128": "images/icon-128.png"
 	},
-	"permissions": ["tabs", "scripting"]
+	"permissions": ["tabs", "scripting", "storage"]
 }

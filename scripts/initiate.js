@@ -62,10 +62,10 @@ const func_list = {
 	subtractTwoNumbers: (args) => { return args.a - args.b; }
 };  
 
-const tt_s = 1000 * 1000 * 1000;
-const options = { alive: "2h", context: 8192, random: 0.7 };
+const tt_s = 1000 * 1000 * 1000; 
 
-const client = new ChatClient('http://localhost:11434', options); 
+var options = { host: "http://localhost:11434", alive: "2h", context: 8192, random: 0.7 };
+var client = new ChatClient(options); 
  
 client.changeState = async () => {
 	$("#chat-send").toggle();
@@ -73,8 +73,7 @@ client.changeState = async () => {
 }	
 
 // chat start 
-client.onBegin = async () => {
-	$("#enquire").val(""); 	
+client.onBegin = async () => { 
 	
 	let dialog = document.getElementById("llm-dialog").lastChild;
 	
@@ -122,10 +121,19 @@ client.onEnd = async (response) => {
 }
 
 //chat clear
-client.onDispose = async () => {
+client.onClear = async () => {
 	let d = document.getElementById("llm-dialog");		
 	d.innerHTML = "";
 } 
+
+//download model
+client.onDownload = async () => { 
+	client.precent = document.getElementById("llm-precent");  
+}
+
+client.onFileStream = async (status, percent) => {	 
+	client.precent.innerText = `${status} ${percent}%...`;
+}
 
 window.client = client;
 window.availableFunc = availableFunc;
