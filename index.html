@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" >    
-    <title>LLChat</title>    
+    <title>LLChat - Ollama AI Assistant</title>    
 	<link rel="stylesheet" href="styles/uikit.min.css" />
 	<link rel="stylesheet" href="styles/app.css?v=1.030" />	   
 </head>
@@ -12,8 +12,7 @@
 	<div class="llm-header"> 
 		<div class="uk-grid uk-grid-collapse uk-flex-middle"> 
 			<div class="uk-width-4-5">
-				<img src="images/cpu_icon.svg?v=1.01" alt="AI" /> 
-				<span class="llm-title">LLChat - Ollama Assistant</span>
+				<img src="images/cpu_icon.svg?v=1.01" class="llm-logo" alt="AI" />  
 				<select id="chat-model" class="llm-model" title="AI Model"></select>   
 			</div>
 			<div class="uk-width-1-5 uk-text-right">				  
@@ -26,23 +25,18 @@
 	<div class="llm-footer">		 
 		<div class="llm-compose uk-width-xlarge-1-2 uk-align-center">
 			<div class="uk-width-1-1 uk-flex uk-flex-top llm-textarea">			    
-				<textarea id="enquire" placeholder="write something"> </textarea>			
+				<textarea id="enquire" placeholder="write something"></textarea>			
 				<button id="chat-send" class="llm-btn" title="Send"><img src="images/send_icon.svg" alt="Pause" /></button>
 				<button id="chat-pause" class="llm-btn" title="Pause" style="display: none"><img src="images/pause_icon.svg" alt="Pause" /></button> 
-			</div> 			
-			<div class="llm-tools">
-				<input type="checkbox" id="chat-switch" role="switch" />
-				<label for="chat-switch" class="btn-toggle"><span>Tools</span></label>
-			</div>
+			</div> 		 
 		</div> 
-		<div class="uk-width-1-1 ">LLM Assist ver 0.21 copyright by Stephen Yeung</div>	
 	</div>    
 	<div id="llm-setting" class="slide-panel">
 		<div class="uk-text-right">
 			<button id="setting-close" class="llm-btn" title="Close"><image src="images/close_icon.svg" alt="close" /></button> 
 		</div>
 		<div class="uk-form-row">
-			<span class="llm-label">Ollama Host</span>
+			<span class="llm-label">Ollama Host Url</span>
 			<input type="text" id="host" class="llm-input" name="host" value="" />
 		</div>
 		<div class="uk-form-row">

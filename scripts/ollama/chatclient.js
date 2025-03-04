@@ -13,6 +13,8 @@ export function ChatClient(options) {
 	this.onResult = null;
 	this.onReceive = null;	
 	this.onDispose = null; 
+	this.onDownload = null;
+	this.onFileStream = null;
 	
 	//Get model list
 	this.GetModels = async function() {
@@ -86,18 +88,18 @@ export function ChatClient(options) {
 		} 
 	}
 		
-	this.Pull = async function(model) {
+	this.Find = async function(model) {
 		this.checkOllama();
 	
 		if (this.onDownload != null) {
 			this.onDownload();
 		}
 		
-		const stream = await this.ollama.pull({ model: model, stream: true })
+		const response = await this.ollama.pull({ model: model, stream: true })
 		
 		let percent = 0;
 		 
-		for await (const part of stream) {
+		for await (const part of response) {
 			if (part.digest) {
 				if (part.completed && part.total) {
 					percent = Math.round((part.completed / part.total) * 100);

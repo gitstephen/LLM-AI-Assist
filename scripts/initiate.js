@@ -1,71 +1,9 @@
 import { ChatClient } from './ollama/chatclient.js';
-
-/* Office.onReady((info) => {
-    if (info.host === Office.HostType.Word) {
-        sendToOffice("AI assistant");
-    }
-}); */
-
-function sendToOffice(str) {	
-	Word.run(async (context) => {
-       // Create a proxy object for the document body.
-	   var body = context.document.body;
-       // Queue a commmand to clear the contents of the body.
-       //body.clear();
-       // Queue a command to insert text into the end of the Word document body.
-       body.insertText(str, Word.InsertLocation.end);
-
-       // Synchronize the document state by executing the queued commands, and return a promise to indicate task completion.
-       context.sync();
-    })
-    .catch(errorHandler);
-}
-
-// Tools definition for add function
-const addTwoNumbersTool = {
-    type: 'function',
-    function: {
-        name: 'addTwoNumbers',
-        description: 'Add two numbers together',
-        parameters: {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: {
-                a: { type: 'number', description: 'The first number' },
-                b: { type: 'number', description: 'The second number' }
-            }
-        }
-    }
-};
-
-// Tools definition for subtract function
-const subtractTwoNumbersTool = {
-    type: 'function',
-    function: {
-        name: 'subtractTwoNumbers',
-        description: 'Subtract two numbers',
-        parameters: {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: {
-                a: { type: 'number', description: 'The first number' },
-                b: { type: 'number', description: 'The second number' }
-            }
-        }
-    }
-};
-
-const availableFunc = [addTwoNumbersTool, subtractTwoNumbersTool]; 
-
-const func_list = {
-	addTwoNumbers: (args) => { return args.a + args.b; },
-	subtractTwoNumbers: (args) => { return args.a - args.b; }
-};  
-
+ 
 const tt_s = 1000 * 1000 * 1000; 
 
-var options = { host: "http://localhost:11434", alive: "2h", context: 8192, random: 0.7 };
-var client = new ChatClient(options); 
+let options = { host: "http://localhost:11434", alive: "2h", context: 8192, random: 0.7 };
+const client = new ChatClient(options); 
  
 client.changeState = async () => {
 	$("#chat-send").toggle();
@@ -73,18 +11,15 @@ client.changeState = async () => {
 }	
 
 // chat start 
-client.onBegin = async () => { 
-	
+client.onBegin = async () => { 	
 	let dialog = document.getElementById("llm-dialog").lastChild;
 	
-	client.chars = dialog.querySelector('p');  
-	
+	client.chars = dialog.querySelector('p');	
 	client.changeState(); 
 }
 
 // chat response result 
 client.onResult = async (str) => {
-
 	client.chars.innerHTML = "";	  
 }
 
@@ -115,8 +50,7 @@ client.onEnd = async (response) => {
 	let dt = response.eval_duration / tt_s;
 	let token = response.eval_count / response.eval_duration * tt_s;
 	
-	client.chars.innerHTML += "<span>" + token.toFixed(1) + " tok/s, " +  dt.toFixed(2) + 's </span>'; 
- 
+	client.chars.innerHTML += "<span>" + token.toFixed(1) + " tok/s, " +  dt.toFixed(2) + 's </span>';  
 	client.changeState();
 }
 
@@ -136,4 +70,3 @@ client.onFileStream = async (status, percent) => {
 }
 
 window.client = client;
-window.availableFunc = availableFunc;

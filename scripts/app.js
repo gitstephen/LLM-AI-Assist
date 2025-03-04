@@ -3,7 +3,7 @@ var App = function(client) {
 	this.stream = client;
 		
 	this.state = false;
-	this.looping = false;
+	this.looping = true;
 	this.tools = null;
 	
 	this.addText = async (str, css) => {
@@ -39,14 +39,14 @@ var App = function(client) {
 		
 		try { 
 			//send message
-			await this.stream.Send(llm, message, !this.looping, this.tools); 
+			await this.stream.Send(llm, message, this.looping, this.tools); 
 		}
 		catch(err) { 
-			this.addText(err.message, "llm-received llm-error");  			
+			this.addText(err.message, "llm-received llm-error");
 			this.stream.changeState();
 		}
 				 
-		this.state = false;
+		this.state = false; 
 	};		  
 		
 	this.list = async () => {
@@ -68,7 +68,7 @@ var App = function(client) {
 	
 	this.remove = async (name) => {
 		try {
-			let data = await this.stream.Remove(name);  
+			let response = await this.stream.Remove(name);  
 				
 			this.list();			 	 
 		}
@@ -87,7 +87,7 @@ var App = function(client) {
 		} 
 	};		 
 	
-	this.update = (options) => {		
+	this.update = (options) => {
 		this.stream.Setting = options;	
 		this.stream.Dispose();
 		
@@ -99,28 +99,27 @@ var App = function(client) {
 	
 	this.download = async (model) => { 	 
 		try {
-			let status = await this.stream.Pull(model);
+			let status = await this.stream.Find(model);
 
 			if (status == "success") {
 				document.getElementById("llm-precent").innerText = "done";  
 				$("#llm-pull").val("");
 				
 				this.list(); 
-			}				
-			
-		} catch(err) {
-			this.addText(err.message, "llm-received llm-error");	
+			}			
+		} catch(err) { 
+			document.getElementById("llm-precent").innerHTML = '<span class="uk-text-warning">' + err.message + '</span>';  
 		}
 	};
 };
 
 var chatApp;
 
-addEventListener("DOMContentLoaded", () => {   
+addEventListener("DOMContentLoaded", () => {
     chatApp = new App(client); 
 		
-	chrome.storage.local.get("options").then((obj) => {		 
-		if (Object.keys(obj).length > 0) { 			
+	chrome.storage.local.get("options").then((obj) => {
+		if (Object.keys(obj).length > 0) {
 			chatApp.update(obj.options);
 			console.log(obj);
 		} else {
@@ -128,7 +127,7 @@ addEventListener("DOMContentLoaded", () => {
 		}
 	});	 
 
-	$('#chat-send').click(function() {  
+	$('#chat-send').click(function() {   
 		chatApp.get();	 
 	});
 	
@@ -149,24 +148,24 @@ addEventListener("DOMContentLoaded", () => {
 	$("#chat-pull").click(function() {
 		let model = $("#llm-pull").val();
 		
-		if (model != null || model != "") {
+		if (model != null && model != "") {
 			chatApp.download(model);
+		} else {
+			document.getElementById("llm-precent").innerHTML = '<span class="uk-text-warning">Please input model name</span>';  
 		}
 	});
 	
 	$('#setting-close').click(function() {
-		$(".slide-panel").animate({ right: -300 }); 
+		$(".slide-panel").animate({ right: -350 }); 
 	});
 	
-	$("#setting-del").click(function() {		
-		let llm = $("#ai-model option:selected").text();
+	$("#setting-del").click(function() {
+		if (confirm("Are you sure to delete ai model?")) {
+			let llm = $("#ai-model option:selected").text();
 		
-		chatApp.remove(llm); 	
-	});
-	 
-	$('#chat-switch').change(function() {
-		chatApp.looping = this.checked; 
-	});
+			chatApp.remove(llm); 	 
+		} 
+	}); 
 	
     $("#setting-save").click(function() {  
 		let options = { host: $("#host").val(), alive: $("#alive").val(), context: Number($("#ctxnum").val()), random: Number($("#random").val()) };  
@@ -176,10 +175,9 @@ addEventListener("DOMContentLoaded", () => {
 			
 			chatApp.update(options); 
 			
-			$(".slide-panel").animate({ right: -300	}); 
+			$(".slide-panel").animate({ right: -350	}); 
 		}); 
-	});
-	
-    chatApp.tools = availableFunc; 
+	});	
+
 	chatApp.list();
 });
