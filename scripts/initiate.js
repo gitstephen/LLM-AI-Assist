@@ -2,7 +2,7 @@ import { ChatClient } from './ollama/chatclient.js';
  
 const tt_s = 1000 * 1000 * 1000; 
 
-let options = { host: "http://localhost:11434", alive: "2h", context: 8192, random: 0.7 };
+let options = { host: "http://localhost:11434", alive: "1h", context: 8192, random: 0.7 };
 const client = new ChatClient(options); 
  
 client.changeState = async () => {
@@ -12,9 +12,9 @@ client.changeState = async () => {
 
 // chat start 
 client.onBegin = async () => { 	
-	let dialog = document.getElementById("llm-dialog").lastChild;
+	let dialog = document.getElementById("llm-dialog");	 
 	
-	client.chars = dialog.querySelector('p');	
+	client.chars = dialog.lastChild.querySelector('p');
 	client.changeState(); 
 }
 
@@ -57,7 +57,7 @@ client.onEnd = async (response) => {
 //chat clear
 client.onClear = async () => {
 	let d = document.getElementById("llm-dialog");		
-	d.innerHTML = "";
+	d.innerHTML = '<div style="margin-top: 100px; text-align: center"><image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hello, how can I help you?</p></div>';
 } 
 
 //download model

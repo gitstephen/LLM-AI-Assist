@@ -1,7 +1,7 @@
 {
 	"name": "LLChat - Ollama Assistant",
-	"description": "LLChat is LLM chat assistant for ollama",
-	"version": "0.1",
+	"description": "LLchat is a lightweight ollama assistant, chat with the large language models on local server.",
+	"version": "0.2",
 	"manifest_version": 3,
 	"action": {
 		"default_popup": "popup.html",

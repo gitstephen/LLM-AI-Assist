@@ -127,7 +127,11 @@ addEventListener("DOMContentLoaded", () => {
 		}
 	});	 
 
-	$('#chat-send').click(function() {   
+	$('#chat-send').click(function() {  
+		if (chatApp.stream.Dialogue.length == 0) {
+			document.getElementById("llm-dialog").innerHTML = "";
+		}
+	
 		chatApp.get();	 
 	});
 	

@@ -13,9 +13,10 @@
 }	 
 
 body { 
-  min-height: 100vh;   
-  font-family: arial;
-  overflow-x: hidden; 
+	min-height: 100vh;   
+	font-family: arial;
+	overflow-x: hidden;
+	overflow-y: hidden;  
 } 
 
 .llm-container {
@@ -24,8 +25,7 @@ body {
 	position: relative;
 	width: 100%; 
 	height: 100vh; 
-	background-color: #ffffff;
-	 
+	background-color: #ffffff;	 
 }
  
 .llm-header {   
@@ -54,14 +54,13 @@ body {
 
 .llm-compose   { 
 	display: flex;
-	flex-direction: column;
- 
+	flex-direction: column; 
 	align-items: flex-start;
 }  
 
 .llm-chat {
 	position: relative; 
-	height: calc(100% - 100px);  
+	height: calc(100% - 160px);  
 	padding: 40px;
 	overflow-y: auto;
 	overflow-x: hidden; 
@@ -210,7 +209,7 @@ body {
 .slide-panel {
 	position: absolute;
 	top: 0;
-	right: -600px;
+	right: -350px;
 	z-index: 999;
 	background: #ffffff;
 	padding: 20px;
@@ -228,8 +227,7 @@ textarea {
 
 textarea:focus {
 	outline: none !important;
-}
- 
+} 
 
 input[type=checkbox]{
 	height: 0;
@@ -278,4 +276,3 @@ input:checked + label:after {
 .btn-toggle:active:after {
 	width: 20px;
 } 
-
