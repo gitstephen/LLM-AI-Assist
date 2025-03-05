@@ -17,17 +17,21 @@ var App = function(client) {
 	};	
 
 	this.get = async () => {
-		if (this.state) return; 
-		this.state = true; 
+		if (this.state) return;  
 		
 		let llm = this.getListItem("chat-model");
  		let enquire = this.getDom("enquire").value;
 		
-		if (llm == "" || enquire == "") return;
+		if (llm == "" || enquire == "") { 
+			console.log("input empty");			
+			return;
+		}
 		
 		if (this.stream.Dialogue.length == 0) {
 			this.getDom("llm-dialog").innerHTML = "";
 		}
+		
+		this.state = true; 
 		
 		//start chat
 		let message = enquire;
