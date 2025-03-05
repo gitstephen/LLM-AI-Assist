@@ -1,4 +1,4 @@
-import { Ollama } from './browser.mjs';
+import { Ollama } from './browser.js';
  
 export function ChatClient(options) {  
 	this.Dialogue = []; 

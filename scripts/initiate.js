@@ -5,11 +5,6 @@ const tt_s = 1000 * 1000 * 1000;
 let options = { host: "http://localhost:11434", alive: "1h", context: 8192, random: 0.7 };
 const client = new ChatClient(options); 
  
-client.changeState = async () => {
-	$("#chat-send").toggle();
-	$("#chat-pause").toggle();	 
-}	
-
 // chat start 
 client.onBegin = async () => { 	
 	let dialog = document.getElementById("llm-dialog");	 

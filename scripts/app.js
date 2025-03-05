@@ -1,5 +1,4 @@
 var App = function(client) {
-	
 	this.stream = client;
 		
 	this.state = false;
@@ -11,23 +10,24 @@ var App = function(client) {
 		child.setAttribute('class', 'llm-message ' + css); 	 
 	 
 		child.innerHTML = `<div> 
-					<p>${str}</p> 
+				<p>${str}</p> 
 				</div>`; 
 		
-		let parent = document.getElementById("llm-dialog");	
-		
-		parent.appendChild(child); 
+		this.getDom("llm-dialog").appendChild(child);
 	};	
 
 	this.get = async () => {
-		if (this.state) return;
+		if (this.state) return; 
+		this.state = true; 
 		
-		let llm = $("#chat-model option:selected").text();
-		let enquire = $("#enquire").val();
+		let llm = this.getListItem("chat-model");
+ 		let enquire = this.getDom("enquire").value;
 		
 		if (llm == "" || enquire == "") return;
-				 
-		this.state = true;
+		
+		if (this.stream.Dialogue.length == 0) {
+			this.getDom("llm-dialog").innerHTML = "";
+		}
 		
 		//start chat
 		let message = enquire;
@@ -35,7 +35,7 @@ var App = function(client) {
 		this.addText(message, "llm-send");	
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
 		
-		$("#enquire").val(""); 	
+		this.getDom("enquire").value = ""; 	
 		
 		try { 
 			//send message
@@ -45,21 +45,23 @@ var App = function(client) {
 			this.addText(err.message, "llm-received llm-error");
 			this.stream.changeState();
 		}
-				 
+
 		this.state = false; 
-	};		  
+	};
 		
 	this.list = async () => {
 		try {
 			let data = await this.stream.GetModels();  
-
-			$('.llm-model').empty();
+			
+			let list = this.getDom('chat-model');
+			
+			list.innerHTML = "";
 			
 			for(var i = 0; i < data.length; i++ ) { 
-				$('.llm-model').append(
-					$('<option>', {	value: i, text: data[i] })
-				);  
+				list.add(new Option(data[i], i + 1)); 
 			} 
+			
+			this.getDom('ai-model').innerHTML = list.innerHTML;
 		}
 		catch(err) {
 			this.addText("Not found AI model", "llm-received llm-error");	
@@ -70,7 +72,7 @@ var App = function(client) {
 		try {
 			let response = await this.stream.Remove(name);  
 				
-			this.list();			 	 
+			this.list(); 
 		}
 		catch(err) {
 			this.addText(err.message, "llm-received llm-error");	
@@ -91,97 +93,119 @@ var App = function(client) {
 		this.stream.Setting = options;	
 		this.stream.Dispose();
 		
-		$("#host").val(options.host);
-		$("#alive").val(options.alive);
-		$("#random").val(options.random);
-		$("#ctxnum").val(options.context);	 
+		this.getDom("host").value = options.host;
+		this.getDom("alive").value = options.alive;
+		this.getDom("ctxnum").value = options.context;
+		this.getDom("random").value = options.random;	 
 	};
 	
-	this.download = async (model) => { 	 
+	this.download = async (model) => { 
 		try {
 			let status = await this.stream.Find(model);
 
 			if (status == "success") {
-				document.getElementById("llm-precent").innerText = "done";  
-				$("#llm-pull").val("");
+				this.getDom("llm-precent").innerText = "done";  
+				this.getDom("llm-pull").value = "";
 				
 				this.list(); 
-			}			
+			} 
 		} catch(err) { 
-			document.getElementById("llm-precent").innerHTML = '<span class="uk-text-warning">' + err.message + '</span>';  
+			this.getDom("llm-precent").innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};
+	
+	this.loadSetting = () => {
+		return { 
+			host: this.getDom("host").value, 
+			alive: this.getDom("alive").value, 
+			context: Number(this.getDom("ctxnum").value), 
+			random: Number(this.getDom("random").value) 
+		};  
+	};
+	
+	this.getDom = (id) => {
+		return document.getElementById(id);
+	};
+	
+	this.getListItem = (id) => {
+		let list = this.getDom(id);
+		
+		return list.options[list.selectedIndex].text; 
+	}; 
 };
 
 var chatApp;
 
+const btnSend = document.getElementById("chat-send");
+const btnPause = document.getElementById("chat-pause");
+
 addEventListener("DOMContentLoaded", () => {
     chatApp = new App(client); 
-		
-	chrome.storage.local.get("options").then((obj) => {
-		if (Object.keys(obj).length > 0) {
-			chatApp.update(obj.options);
-			console.log(obj);
-		} else {
-			chatApp.update(client.Setting);
-		}
-	});	 
-
-	$('#chat-send').click(function() {  
-		if (chatApp.stream.Dialogue.length == 0) {
-			document.getElementById("llm-dialog").innerHTML = "";
-		}
 	
-		chatApp.get();	 
-	});
+	/* event */
+	chatApp.getDom("chat-send").onclick = function() { 
+		chatApp.get();
+	}; 
 	
-	$('#chat-pause').click(function() {
+	chatApp.getDom("chat-pause").onclick = function() {  
 		chatApp.stop(); 
-	});
+	};
 	
-	$('#chat-clear').click(function() {
+	chatApp.getDom("chat-clear").onclick = function() {
 		chatApp.clear();
-	});
+	};
    
-	$('#chat-setting').click(function() {
-		$(".slide-panel").animate({ 
-			right: 0 
-		}); 
-	});
+	chatApp.getDom('chat-setting').onclick = function() {
+		chatApp.getDom("slide-menu").style.right = 0;
+	};	
 	
-	$("#chat-pull").click(function() {
-		let model = $("#llm-pull").val();
+	chatApp.getDom('setting-close').onclick = function() {
+		chatApp.getDom("slide-menu").style.right = "-350px"; 
+	};
+		
+	chatApp.getDom("chat-pull").onclick = function() {
+		let model = chatApp.getDom("llm-pull").value;
 		
 		if (model != null && model != "") {
 			chatApp.download(model);
 		} else {
-			document.getElementById("llm-precent").innerHTML = '<span class="uk-text-warning">Please input model name</span>';  
+			chatApp.getDom("llm-precent").innerHTML = '<span class="text-err">Please input model name</span>';  
 		}
-	});
+	};
 	
-	$('#setting-close').click(function() {
-		$(".slide-panel").animate({ right: -350 }); 
-	});
-	
-	$("#setting-del").click(function() {
-		if (confirm("Are you sure to delete ai model?")) {
-			let llm = $("#ai-model option:selected").text();
-		
-			chatApp.remove(llm); 	 
+	chatApp.getDom("setting-del").onclick = function() {
+		if (confirm("Are you sure to delete ai model?")) {  
+			let name = chatApp.getListItem("ai-model");	 
+			chatApp.remove(name); 	 
 		} 
-	}); 
+	}; 
 	
-    $("#setting-save").click(function() {  
-		let options = { host: $("#host").val(), alive: $("#alive").val(), context: Number($("#ctxnum").val()), random: Number($("#random").val()) };  
+    chatApp.getDom("setting-save").onclick = function() {  
+		let options = chatApp.loadSetting();
 		
-		chrome.storage.local.set({ options: options }).then(() => {
+		chrome.storage?.local?.set({ options: options }).then(() => {
 			console.log("Value is set");
 			
 			chatApp.update(options); 
-			
-			$(".slide-panel").animate({ right: -350	}); 
+			chatApp.getDom("slide-menu").style.right = "-350px"; 
 		}); 
-	});	
+	};	
+	
+	chatApp.stream.changeState = async () => {	 
+		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
+		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
+	} 
 
+	/* end event */
+	
+	chatApp.update(client.Setting);	
+	
+	chrome.storage?.local?.get("options").then((data) => {
+		if (Object.keys(data).length > 0) {
+			chatApp.update(data.options);
+			console.log(data);
+		}		  
+	});
+	
 	chatApp.list();
 });

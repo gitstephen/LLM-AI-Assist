@@ -17,14 +17,13 @@ body {
 	font-family: arial;
 	overflow-x: hidden;
 	overflow-y: hidden;  
+	margin: 0;
 } 
 
-.llm-container {
-	display: flex; 
-	flex-direction: column;
+.llm-container { 
 	position: relative;
-	width: 100%; 
-	height: 100vh; 
+	width: 100%;  
+	height: 100vh;
 	background-color: #ffffff;	 
 }
  
@@ -33,6 +32,7 @@ body {
 	color: #ffffff;
 	background: #242424;
 	padding: 15px;
+	display: flex;
 }   
 
 .llm-title {
@@ -42,30 +42,33 @@ body {
 }
  
 .llm-footer {
-	display: flex;
-	flex-direction: column;
+	position: absolute;
+	bottom: 20px;	
 	padding: 0 15px;	  
-	height: auto;
+	height: 60px;
+	width: 100%;
 	font-size: 12px;
 	text-align: center;	 
 	color: #808080;
-	position: relative;
+	z-index: 998;
+	
 }  
+
+.llm-chat {
+	position: relative; 
+	height: calc(100vh - 160px);  
+	width: 50%;
+	padding: 40px;
+	overflow-y: auto;
+	overflow-x: hidden; 
+	margin: 0 auto;
+}
 
 .llm-compose   { 
 	display: flex;
 	flex-direction: column; 
 	align-items: flex-start;
 }  
-
-.llm-chat {
-	position: relative; 
-	height: calc(100% - 160px);  
-	padding: 40px;
-	overflow-y: auto;
-	overflow-x: hidden; 
-	margin: 0 auto;
-}
 
 .llm-message {
 	display: flex;
@@ -170,6 +173,7 @@ body {
 	border-radius: 5px;
 	font-size: 14px;
 }
+
 .llm-model {
 	font-size: 14px;
 	padding: 8px;
@@ -179,6 +183,7 @@ body {
 }
 
 .llm-textarea {	
+	display: flex;
 	border: 1px solid #d0d0d0;
 	border-radius: 12px;		 
 	padding: 6px;
@@ -201,9 +206,25 @@ body {
 
 .llm-input {
 	padding: 10px;
-	border: 1px solid #808080;
-	border-radius: 5px;	 
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	font-size: 14px;
+	color: #555;
+	outline: none;
 	width: 100%;
+}
+
+.llm-drop {
+	width: 100%;
+}
+ 
+.llm-grid {
+	display: flex; 
+}
+
+.llm-menu {
+	flex: 10%;
+	text-align: right;
 }
 
 .slide-panel {
@@ -216,7 +237,16 @@ body {
 	width: 300px;
 	height: 100%; 
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	transition: right 0.3s ease-in-out;
 } 
+
+.slide-open {
+	right: 0; 
+}
+
+.slide-close {
+	right: -350px; 
+}
 
 textarea {
 	width: 97%; 
@@ -276,3 +306,47 @@ input:checked + label:after {
 .btn-toggle:active:after {
 	width: 20px;
 } 
+
+.text-r {
+	text-align: right;
+}
+
+.text-err {
+	color: red;
+}
+
+.row-p {
+	margin-bottom: 20px;
+} 
+
+.fl-btn {
+  background-color: #fff;
+  border: 1px solid #d5d9d9;
+  border-radius: 8px;
+  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  box-sizing: border-box;
+  color: #0f1111;
+  cursor: pointer; 
+  font-size: 13px; 
+  padding: 10px;
+  vertical-align: middle;
+  width: 100px;
+}
+
+.fl-btn:hover {
+  background-color: #f7fafa;
+}
+
+.fl-btn:focus {
+  border-color: #008296;
+  box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+  outline: 0;
+}
+
+@media (max-width: 768px) {
+ 
+	.llm-chat {
+		width: 100%
+	}
+
+}
