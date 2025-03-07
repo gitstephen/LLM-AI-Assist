@@ -128,7 +128,7 @@ export function ChatClient(options) {
 	
 	this.checkOllama = function() {
 		if (this.ollama == null) {
-			this.ollama = new Ollama({ host: this.Setting.host });
+			this.ollama = new Ollama({ host: this.Setting.host });			
 		}
 	} 
 	

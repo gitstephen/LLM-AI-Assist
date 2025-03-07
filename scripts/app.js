@@ -180,6 +180,8 @@ addEventListener("DOMContentLoaded", () => {
 	chatApp.getDom("setting-del").onclick = function() {
 		if (confirm("Are you sure to delete ai model?")) {  
 			let name = chatApp.getListItem("ai-model");	 
+			
+			console.log(name);
 			chatApp.remove(name); 	 
 		} 
 	}; 
@@ -200,16 +202,17 @@ addEventListener("DOMContentLoaded", () => {
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
 	} 
 
-	/* end event */
-	
-	chatApp.update(client.Setting);	
+	/* end event */  
 	
 	chrome.storage?.local?.get("options").then((data) => {
-		if (Object.keys(data).length > 0) {
-			chatApp.update(data.options);
-			console.log(data);
-		}		  
-	});
+		if (Object.keys(data).length > 0) {		  			
+			chatApp.update(data.options);	
+			console.log(data);	
+		} else {
+			chatApp.update(client.Setting);	
+		}
+				
+		chatApp.list();	
+	}); 
 	
-	chatApp.list();
 });
