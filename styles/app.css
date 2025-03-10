@@ -59,6 +59,18 @@ body {
 	margin: 0 auto;
 }
 
+.llm-cover { 
+	width: 50%;
+	margin: 0 auto;
+	text-align: center;
+	animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .llm-compose   { 
 	display: flex;
 	flex-direction: column; 
@@ -113,7 +125,7 @@ body {
 	min-width: 50px;
 } 
 
-.llm-send > div::after {		 
+.llm-send > div::after { 
 	content: '';
 	position: absolute;
 	top: 3px;
@@ -124,7 +136,7 @@ body {
 }
 	
 .llm-received {
-   justify-content: flex-start;  	   
+   justify-content: flex-start; 
 } 
 
 .llm-received > div {
@@ -135,7 +147,7 @@ body {
 	margin-right: 5%;
 }  
 
-.llm-received > div::after {		 
+.llm-received > div::after { 
 	content: '';
 	position: absolute;
 	top: 0;
@@ -144,11 +156,7 @@ body {
 	height: 24px;
 	background: url('../images/ai_icon.svg');
 }
-
-.llm-error > div {
-	color: red;	
-}
-
+ 
 .llm-logo {
 	margin-right: 10px;
 }
@@ -328,6 +336,12 @@ input:checked + label:after {
   width: 100px;
 }
 
+.text-err {
+	color: red;
+	padding: 10px;
+	font-size: 14px;
+}
+
 .fl-btn:hover {
   background-color: #f7fafa;
 }
@@ -338,10 +352,12 @@ input:checked + label:after {
   outline: 0;
 }
 
-@media (max-width: 768px) {
- 
+@media (max-width: 768px) { 
 	.llm-chat {
-		width: 100%
+		width: 100%; 
 	}
-
+	
+	.llm-cover {
+		width: 100%;		
+	}
 }

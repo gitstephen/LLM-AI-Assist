@@ -55,13 +55,13 @@ export function ChatClient(options) {
 			tools: tools_call
 		});	 		
 		
+		//output message
 		if (this.onResult != null) {
 			this.onResult();
 		}
 
 		if (looping) {
-			// get message
-			for await (const part of response) {   
+			for await (const part of response) {
 				this.output(part);				
 			}	 
 		} else {
@@ -95,11 +95,10 @@ export function ChatClient(options) {
 			this.onDownload();
 		}
 		
-		const response = await this.ollama.pull({ model: model, stream: true })
-		
 		let percent = 0;
-		 
-		for await (const part of response) {
+		const file = await this.ollama.pull({ model: model, stream: true })
+			 
+		for await (const part of file) {
 			if (part.digest) {
 				if (part.completed && part.total) {
 					percent = Math.round((part.completed / part.total) * 100);
@@ -111,7 +110,7 @@ export function ChatClient(options) {
 			}
 		}
 		
-		return "success";
+		return true;
 	}
 	
 	this.Remove = async function(model) {
@@ -121,8 +120,7 @@ export function ChatClient(options) {
 	}		
 	
 	this.Dispose = function() {
-		this.ollama = null;
-		
+		this.ollama = null;		
 		this.Reset();
 	}
 	

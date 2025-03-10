@@ -7,79 +7,102 @@ var App = function(client) {
 	
 	this.addText = async (str, css) => {
 		let child = document.createElement("div");
-		child.setAttribute('class', 'llm-message ' + css); 	 
-	 
+		
+		child.setAttribute('class', 'llm-message ' + css);	 
 		child.innerHTML = `<div> 
 				<p>${str}</p> 
 				</div>`; 
 		
-		this.getDom("llm-dialog").appendChild(child);
-	};	
+		this.getDom("conversation").appendChild(child);
+	};
 
 	this.get = async () => {
 		if (this.state) return;  
 		
 		let llm = this.getListItem("chat-model");
- 		let enquire = this.getDom("enquire").value;
+ 		let enquire = this.getDom("enquire");
 		
-		if (llm == "" || enquire == "") { 
-			console.log("input empty");			
+		if (llm == "" || enquire.value == "") { 
 			return;
 		}
 		
 		if (this.stream.Dialogue.length == 0) {
-			this.getDom("llm-dialog").innerHTML = "";
+			this.getDom("llm-ollama").style.display = "none";
 		}
 		
 		this.state = true; 
 		
 		//start chat
-		let message = enquire;
+		let message = enquire.value;
 			
 		this.addText(message, "llm-send");	
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
 		
-		this.getDom("enquire").value = ""; 	
+		enquire.value = ""; 	
 		
 		try { 
 			//send message
 			await this.stream.Send(llm, message, this.looping, this.tools); 
 		}
 		catch(err) { 
-			this.addText(err.message, "llm-received llm-error");
+			this.addText(err.message, "llm-received text-err");
 			this.stream.changeState();
 		}
 
 		this.state = false; 
 	};
-		
-	this.list = async () => {
-		try {
-			let data = await this.stream.GetModels();  
+
+	this.connect = async () => {  
+		try
+		{  
+			await this.list(); 
 			
-			let list = this.getDom('chat-model');
-			
-			list.innerHTML = "";
-			
-			for(var i = 0; i < data.length; i++ ) { 
-				list.add(new Option(data[i], i + 1)); 
-			} 
-			
-			this.getDom('ai-model').innerHTML = list.innerHTML;
-		}
+			this.getDom("llm-loading").style.display = "none";
+			this.getDom("llm-ollama").style.display = "block"; 
+				
+			this.getDom("host").value = this.stream.Setting.host;
+		}	
 		catch(err) {
-			this.addText("Not found AI model", "llm-received llm-error");	
-		} 
+			this.getDom("conn-llm").innerText = "Ollama connection refused.";	
+			this.getDom("llm-loading").style.display = "none";	 			
+			this.getDom("llm-search").style.display = "block";
+		}			
+	};
+	
+	this.search = async () => {	 
+		this.getDom("llm-search").style.display = "none";
+		this.getDom("llm-ollama").style.display = "none";
+		
+		this.getDom("llm-loading").style.display = "block";
+		this.stream.Setting.host = this.getDom("llm-host").value;	
+
+        setTimeout(() => {
+			this.connect(); 
+		}, 500);	
+	};
+
+	this.list = async () => {		 
+		let data = await this.stream.GetModels();  
+		
+		let list = this.getDom('chat-model');
+		
+		list.innerHTML = "";
+		
+		for(var i = 0; i < data.length; i++ ) { 
+			list.add(new Option(data[i], i + 1)); 
+		}
+		
+		this.getDom('ai-model').innerHTML = list.innerHTML;
 	}; 
 	
 	this.remove = async (name) => {
 		try {
-			let response = await this.stream.Remove(name);  
+			await this.stream.Remove(name);  
 				
 			this.list(); 
 		}
 		catch(err) {
-			this.addText(err.message, "llm-received llm-error");	
+			this.addText(err.message, "llm-received text-err");	
 		} 
 	};
 	
@@ -88,26 +111,32 @@ var App = function(client) {
 	};
 	
 	this.clear = () => {
-		if (!this.state) {
-			this.stream.Reset();
-		} 
+		if (this.state) { return; } 
+		
+		this.stream.Reset(); 	
+		
+		this.search();	
 	};		 
 	
-	this.update = (options) => {
+	this.update = async (options) => {
 		this.stream.Setting = options;	
 		this.stream.Dispose();
 		
 		this.getDom("host").value = options.host;
 		this.getDom("alive").value = options.alive;
 		this.getDom("ctxnum").value = options.context;
-		this.getDom("random").value = options.random;	 
+		this.getDom("random").value = options.random;
+		
+		this.getDom("llm-host").value = options.host;
+		
+		this.search();
 	};
 	
 	this.download = async (model) => { 
 		try {
-			let status = await this.stream.Find(model);
+			let result = await this.stream.Find(model);
 
-			if (status == "success") {
+			if (result) {
 				this.getDom("llm-precent").innerText = "done";  
 				this.getDom("llm-pull").value = "";
 				
@@ -132,10 +161,67 @@ var App = function(client) {
 	};
 	
 	this.getListItem = (id) => {
-		let list = this.getDom(id);
+		let items = this.getDom(id);
 		
-		return list.options[list.selectedIndex].text; 
+		return items.options[items.selectedIndex].text; 
 	}; 
+	
+	this.init = () => {
+		/* event */
+		this.getDom("chat-url").onclick = () => { 
+			this.search();	
+		};
+		
+		this.getDom("chat-send").onclick = () => { 
+			this.get();
+		}; 
+		
+		this.getDom("chat-pause").onclick = () => {  
+			this.stop(); 
+		};
+		
+		this.getDom("chat-clear").onclick = () => {
+			this.clear();
+		};
+	   
+		this.getDom('chat-setting').onclick = () => {
+			this.getDom("slide-menu").style.right = 0;
+		};	
+		
+		this.getDom('setting-close').onclick = () => {
+			this.getDom("slide-menu").style.right = "-350px"; 
+		};
+			
+		this.getDom("chat-pull").onclick = () => {
+			let model = this.getDom("llm-pull").value;
+			
+			if (model != null && model != "") {
+				this.download(model);
+			} else {
+				this.getDom("llm-precent").innerHTML = '<span class="text-err">Please input model name</span>';  
+			}
+		};
+		
+		this.getDom("setting-del").onclick = () => {
+			if (confirm("Are you sure to delete ai model?")) {  
+				let name = this.getListItem("ai-model");	 
+				
+				console.log("delete");
+				this.remove(name); 	 
+			} 
+		}; 
+		
+		this.getDom("setting-save").onclick = () => {  
+			let options = this.loadSetting();
+			
+			chrome.storage?.local?.set({ options: options }).then(() => {
+				console.log("save");
+				
+				this.update(options); 
+				this.getDom("slide-menu").style.right = "-350px"; 
+			}); 
+		};	 
+	};
 };
 
 var chatApp;
@@ -144,65 +230,14 @@ const btnSend = document.getElementById("chat-send");
 const btnPause = document.getElementById("chat-pause");
 
 addEventListener("DOMContentLoaded", () => {
-    chatApp = new App(client); 
-	
-	/* event */
-	chatApp.getDom("chat-send").onclick = function() { 
-		chatApp.get();
-	}; 
-	
-	chatApp.getDom("chat-pause").onclick = function() {  
-		chatApp.stop(); 
-	};
-	
-	chatApp.getDom("chat-clear").onclick = function() {
-		chatApp.clear();
-	};
-   
-	chatApp.getDom('chat-setting').onclick = function() {
-		chatApp.getDom("slide-menu").style.right = 0;
-	};	
-	
-	chatApp.getDom('setting-close').onclick = function() {
-		chatApp.getDom("slide-menu").style.right = "-350px"; 
-	};
-		
-	chatApp.getDom("chat-pull").onclick = function() {
-		let model = chatApp.getDom("llm-pull").value;
-		
-		if (model != null && model != "") {
-			chatApp.download(model);
-		} else {
-			chatApp.getDom("llm-precent").innerHTML = '<span class="text-err">Please input model name</span>';  
-		}
-	};
-	
-	chatApp.getDom("setting-del").onclick = function() {
-		if (confirm("Are you sure to delete ai model?")) {  
-			let name = chatApp.getListItem("ai-model");	 
-			
-			console.log(name);
-			chatApp.remove(name); 	 
-		} 
-	}; 
-	
-    chatApp.getDom("setting-save").onclick = function() {  
-		let options = chatApp.loadSetting();
-		
-		chrome.storage?.local?.set({ options: options }).then(() => {
-			console.log("Value is set");
-			
-			chatApp.update(options); 
-			chatApp.getDom("slide-menu").style.right = "-350px"; 
-		}); 
-	};	
-	
-	chatApp.stream.changeState = async () => {	 
+	client.changeState = async () => {	 
 		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
-	} 
-
-	/* end event */  
+	}
+	
+    chatApp = new App(client); 
+	
+	chatApp.init();
 	
 	chrome.storage?.local?.get("options").then((data) => {
 		if (Object.keys(data).length > 0) {		  			
@@ -212,7 +247,6 @@ addEventListener("DOMContentLoaded", () => {
 			chatApp.update(client.Setting);	
 		}
 				
-		chatApp.list();	
-	}); 
-	
+		chatApp.search();	
+	}); 	
 });

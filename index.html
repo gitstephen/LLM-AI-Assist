@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">    
-    <title>LLChat - Ollama AI Assistant</title>    
- 
-	<link rel="stylesheet" href="styles/app.css?v=1.035" />	   
- 
+    <title>LLChat - Ollama AI Assistant</title> 
+	<link rel="stylesheet" href="styles/app.css?v=1.035" /> 
 </head>
 <body>
 <div id="vue-app" class="llm-container"> 
@@ -20,7 +18,22 @@
 			<button id="chat-setting" class="llm-btn" title="Setting" ><img src="images/setting_icon.svg" alt="setting" /></button> 
 		</div>	 			 
 	</div>
-	<div id="llm-dialog" class="llm-chat"></div> 
+	<div id="llm-dialog" class="llm-chat">
+		<div id="llm-hello" class="llm-cover">
+			<div id="llm-loading"><img src="images/loading.svg" alt="loading" /></div>
+			<div id="llm-ollama" style="display: none"><image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hey, how can I help you?</p></div>
+			
+			<div id="llm-search" style="display: none;">			
+				<div class="llm-grid">			
+					<input type="text" id="llm-host" class="llm-input" name="host_url" value="" />  
+					<button id="chat-url" class="llm-btn" title="Url"><image src="images/refresh_icon.svg" alt="Download" /></button>
+				</div>
+				<div id="conn-llm" class="text-err"></div>
+			</div>
+		</div>
+		
+		<div id="conversation"></div>
+	</div>
 	<div class="llm-footer">		 
 		<div class="llm-compose">
 			<div class="llm-textarea">			    
@@ -67,6 +80,9 @@
 				<button id="chat-pull" class="llm-btn" title="Pull"><image src="images/pull_icon.svg" alt="Download" /></button>
 			</div>
 			<p id="llm-precent"></p> 
+		</div>
+		<div class="row-p " style="margin-top: 60px;"> 
+			LLChat version 0.23
 		</div>
 	</div>
 </div>

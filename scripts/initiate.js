@@ -7,7 +7,7 @@ const client = new ChatClient(options);
  
 // chat start 
 client.onBegin = async () => { 	
-	let dialog = document.getElementById("llm-dialog");	 
+	let dialog = document.getElementById("conversation");	 
 	
 	client.chars = dialog.lastChild.querySelector('p');
 	client.changeState(); 
@@ -50,9 +50,8 @@ client.onEnd = async (response) => {
 }
 
 //chat clear
-client.onClear = async () => {
-	let d = document.getElementById("llm-dialog");		
-	d.innerHTML = '<div style="margin-top: 100px; text-align: center"><image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hello, how can I help you?</p></div>';
+client.onClear = () => {	
+	document.getElementById("conversation").innerHTML = '';	 
 } 
 
 //download model
