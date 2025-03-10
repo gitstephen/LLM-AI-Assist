@@ -1,3 +1,17 @@
+const VISIBLE = "block";
+const HIDDEN = "none";
+
+const btnSend = document.getElementById("chat-send");
+const btnPause = document.getElementById("chat-pause");
+
+const img_load = document.getElementById("llm-loading");
+const img_ollama = document.getElementById("llm-ollama");
+
+const lb_host = document.getElementById("llm-host");
+const lb_search = document.getElementById("llm-search");
+
+const lb_dialog = document.getElementById("conversation");
+
 var App = function(client) {
 	this.stream = client;
 		
@@ -13,7 +27,7 @@ var App = function(client) {
 				<p>${str}</p> 
 				</div>`; 
 		
-		this.getDom("conversation").appendChild(child);
+		lb_dialog.appendChild(child);
 	};
 
 	this.get = async () => {
@@ -27,7 +41,7 @@ var App = function(client) {
 		}
 		
 		if (this.stream.Dialogue.length == 0) {
-			this.getDom("llm-ollama").style.display = "none";
+			img_ollama.style.display = HIDDEN;
 		}
 		
 		this.state = true; 
@@ -53,35 +67,35 @@ var App = function(client) {
 	};
 
 	this.connect = async () => {  
+		this.refresh(true);
+	
 		try
-		{  
+		{			
 			await this.list(); 
 			
-			this.getDom("llm-loading").style.display = "none";
-			this.getDom("llm-ollama").style.display = "block"; 
-				
-			this.getDom("host").value = this.stream.Setting.host;
+			this.getDom("host").value = this.stream.Setting.host; 
+			
+			setTimeout(() => {
+				this.refresh(false);
+			}, 500);			
 		}	
-		catch(err) {
-			this.getDom("conn-llm").innerText = "Ollama connection refused.";	
-			this.getDom("llm-loading").style.display = "none";	 			
-			this.getDom("llm-search").style.display = "block";
-		}			
+		catch(err) { 
+			img_load.style.display = HIDDEN;
+			lb_search.style.display = VISIBLE;
+			
+			this.getDom("conn-llm").innerText = "Ollama connection refused.";			   
+		} 	
 	};
 	
-	this.search = async () => {	 
-		this.getDom("llm-search").style.display = "none";
-		this.getDom("llm-ollama").style.display = "none";
+	this.search = async () => {
+		lb_search.style.display = HIDDEN;  
 		
-		this.getDom("llm-loading").style.display = "block";
-		this.stream.Setting.host = this.getDom("llm-host").value;	
-
-        setTimeout(() => {
-			this.connect(); 
-		}, 500);	
+		this.stream.Setting.host = lb_host.value;	
+		
+		this.connect(); 
 	};
 
-	this.list = async () => {		 
+	this.list = async () => {
 		let data = await this.stream.GetModels();  
 		
 		let list = this.getDom('chat-model');
@@ -111,12 +125,17 @@ var App = function(client) {
 	};
 	
 	this.clear = () => {
-		if (this.state) { return; } 
+		if (this.state) return; 
+		if (this.stream.Dialogue.length == 0) return;
 		
-		this.stream.Reset(); 	
+		this.refresh(true);
 		
-		this.search();	
-	};		 
+		this.stream.Reset();
+		
+		setTimeout(() => {
+			this.refresh(false);
+		}, 500);
+	};
 	
 	this.update = async (options) => {
 		this.stream.Setting = options;	
@@ -131,19 +150,19 @@ var App = function(client) {
 		
 		this.search();
 	};
-	
+
 	this.download = async (model) => { 
 		try {
 			let result = await this.stream.Find(model);
 
 			if (result) {
-				this.getDom("llm-precent").innerText = "done";  
+				this.stream.stats = "done";  
 				this.getDom("llm-pull").value = "";
 				
 				this.list(); 
 			} 
 		} catch(err) { 
-			this.getDom("llm-precent").innerHTML = '<span class="text-err">' + err.message + '</span>';  
+			this.stream.stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};
 	
@@ -154,6 +173,11 @@ var App = function(client) {
 			context: Number(this.getDom("ctxnum").value), 
 			random: Number(this.getDom("random").value) 
 		};  
+	};
+	
+	this.refresh = (appear) => {
+		img_load.style.display = appear ? VISIBLE : HIDDEN;
+		img_ollama.style.display = appear ? HIDDEN : VISIBLE;
 	};
 	
 	this.getDom = (id) => {
@@ -222,12 +246,7 @@ var App = function(client) {
 			}); 
 		};	 
 	};
-};
-
-var chatApp;
-
-const btnSend = document.getElementById("chat-send");
-const btnPause = document.getElementById("chat-pause");
+}; 
 
 addEventListener("DOMContentLoaded", () => {
 	client.changeState = async () => {	 
@@ -235,7 +254,7 @@ addEventListener("DOMContentLoaded", () => {
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
 	}
 	
-    chatApp = new App(client); 
+    const chatApp = new App(client); 
 	
 	chatApp.init();
 	
@@ -245,8 +264,6 @@ addEventListener("DOMContentLoaded", () => {
 			console.log(data);	
 		} else {
 			chatApp.update(client.Setting);	
-		}
-				
-		chatApp.search();	
+		} 
 	}); 	
 });

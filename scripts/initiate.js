@@ -6,10 +6,8 @@ let options = { host: "http://localhost:11434", alive: "1h", context: 8192, rand
 const client = new ChatClient(options); 
  
 // chat start 
-client.onBegin = async () => { 	
-	let dialog = document.getElementById("conversation");	 
-	
-	client.chars = dialog.lastChild.querySelector('p');
+client.onBegin = async () => { 	 
+	client.chars = lb_dialog.lastChild.querySelector('p');
 	client.changeState(); 
 }
 
@@ -50,17 +48,18 @@ client.onEnd = async (response) => {
 }
 
 //chat clear
-client.onClear = () => {	
-	document.getElementById("conversation").innerHTML = '';	 
-} 
+client.onClear = () => { 
+	console.log("clear");  
+	lb_dialog.innerHTML = '';  
+}
 
 //download model
 client.onDownload = async () => { 
-	client.precent = document.getElementById("llm-precent");  
+	client.stats = document.getElementById("llm-precent");  
 }
 
 client.onFileStream = async (status, percent) => {	 
-	client.precent.innerText = `${status} ${percent}%...`;
+	client.stats.innerText = `${status} ${percent}%...`;
 }
 
 window.client = client;
