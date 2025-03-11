@@ -11,6 +11,7 @@ const lb_host = document.getElementById("llm-host");
 const lb_search = document.getElementById("llm-search");
 
 const lb_dialog = document.getElementById("conversation");
+const lb_stats = document.getElementById("llm-stats");
 
 var App = function(client) {
 	this.stream = client;
@@ -146,7 +147,7 @@ var App = function(client) {
 		this.getDom("ctxnum").value = options.context;
 		this.getDom("random").value = options.random;
 		
-		this.getDom("llm-host").value = options.host;
+		lb_host.value = options.host;
 		
 		this.search();
 	};
@@ -156,13 +157,13 @@ var App = function(client) {
 			let result = await this.stream.Find(model);
 
 			if (result) {
-				this.stream.stats = "done";  
+				lb_stats.innerText = "done";  
 				this.getDom("llm-pull").value = "";
 				
 				this.list(); 
 			} 
 		} catch(err) { 
-			this.stream.stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
+			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};
 	
@@ -187,10 +188,14 @@ var App = function(client) {
 	this.getListItem = (id) => {
 		let items = this.getDom(id);
 		
-		return items.options[items.selectedIndex].text; 
+		if (items.selectedIndex >= 0) {		
+			return items.options[items.selectedIndex].text; 
+		}
+		
+		return "";
 	}; 
 	
-	this.init = () => {
+	this.run = async () => {
 		/* event */
 		this.getDom("chat-url").onclick = () => { 
 			this.search();	
@@ -222,7 +227,7 @@ var App = function(client) {
 			if (model != null && model != "") {
 				this.download(model);
 			} else {
-				this.getDom("llm-precent").innerHTML = '<span class="text-err">Please input model name</span>';  
+				lb_stats.innerHTML = '<span class="text-err">Please input model name</span>';  
 			}
 		};
 		
@@ -238,13 +243,19 @@ var App = function(client) {
 		this.getDom("setting-save").onclick = () => {  
 			let options = this.loadSetting();
 			
-			chrome.storage?.local?.set({ options: options }).then(() => {
-				console.log("save");
-				
+			chrome.storage?.local?.set({ options: options }).then(() => {				 
 				this.update(options); 
 				this.getDom("slide-menu").style.right = "-350px"; 
 			}); 
 		};	 
+		
+		chrome.storage?.local?.get("options").then((data) => {
+			if (Object.keys(data).length > 0) {		  			
+				this.update(data.options);			 
+			} else {
+				this.update(client.Setting);	
+			} 
+		}); 
 	};
 }; 
 
@@ -252,18 +263,9 @@ addEventListener("DOMContentLoaded", () => {
 	client.changeState = async () => {	 
 		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
-	}
+	} 
 	
-    const chatApp = new App(client); 
+    const app = new App(client); 
 	
-	chatApp.init();
-	
-	chrome.storage?.local?.get("options").then((data) => {
-		if (Object.keys(data).length > 0) {		  			
-			chatApp.update(data.options);	
-			console.log(data);	
-		} else {
-			chatApp.update(client.Setting);	
-		} 
-	}); 	
+	app.run(); 
 });

@@ -55,11 +55,11 @@ client.onClear = () => {
 
 //download model
 client.onDownload = async () => { 
-	client.stats = document.getElementById("llm-precent");  
+	lb_stats.innerText = "start download";
 }
 
 client.onFileStream = async (status, percent) => {	 
-	client.stats.innerText = `${status} ${percent}%...`;
+	lb_stats.innerText = `${status} ${percent}%...`;
 }
 
 window.client = client;
