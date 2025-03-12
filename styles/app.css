@@ -338,7 +338,7 @@ input:checked + label:after {
 
 .text-err {
 	color: red;
-	padding: 10px;
+	padding: 10px 0;
 	font-size: 14px;
 }
 

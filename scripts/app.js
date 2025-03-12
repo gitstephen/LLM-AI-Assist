@@ -13,12 +13,12 @@ const lb_search = document.getElementById("llm-search");
 const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
 
-var App = function(client) {
-	this.stream = client;
-		
+var App = function() { 
 	this.state = false;
 	this.looping = true;
+	
 	this.tools = null;
+	this.stream = null;
 	
 	this.addText = async (str, css) => {
 		let child = document.createElement("div");
@@ -31,7 +31,7 @@ var App = function(client) {
 		lb_dialog.appendChild(child);
 	};
 
-	this.get = async () => {
+	this.chat = async () => {
 		if (this.state) return;  
 		
 		let llm = this.getListItem("chat-model");
@@ -65,16 +65,24 @@ var App = function(client) {
 		}
 
 		this.state = false; 
-	};
-
-	this.connect = async () => {  
+	}; 
+	
+	this.connect = async (url) => {
+		lb_search.style.display = HIDDEN; 
+		
+		this.stream.Setting.host = url;
+		
+		if (this.stream.isOpen()) {
+			this.stream.Dispose(); 
+		}
+		
 		this.refresh(true);
 	
 		try
 		{			
 			await this.list(); 
 			
-			this.getDom("host").value = this.stream.Setting.host; 
+			this.getDom("host").value = url; 
 			
 			setTimeout(() => {
 				this.refresh(false);
@@ -84,16 +92,12 @@ var App = function(client) {
 			img_load.style.display = HIDDEN;
 			lb_search.style.display = VISIBLE;
 			
-			this.getDom("conn-llm").innerText = "Ollama connection refused.";			   
+			lb_host.value = url;
+			
+			this.getDom("conn-llm").innerText = "Ollama connection refused."; 
+			
+			console.log(url);
 		} 	
-	};
-	
-	this.search = async () => {
-		lb_search.style.display = HIDDEN;  
-		
-		this.stream.Setting.host = lb_host.value;	
-		
-		this.connect(); 
 	};
 
 	this.list = async () => {
@@ -138,18 +142,19 @@ var App = function(client) {
 		}, 500);
 	};
 	
-	this.update = async (options) => {
-		this.stream.Setting = options;	
-		this.stream.Dispose();
+	this.save = async (config) => {
+		this.stream.Setting = config;
+
+		this.connect(config.host);
+	};
+	
+	this.update = async (config) => {
+		this.getDom("host").value = config.host;
+		this.getDom("alive").value = config.alive;
+		this.getDom("ctxnum").value = config.context;
+		this.getDom("random").value = config.random;  
 		
-		this.getDom("host").value = options.host;
-		this.getDom("alive").value = options.alive;
-		this.getDom("ctxnum").value = options.context;
-		this.getDom("random").value = options.random;
-		
-		lb_host.value = options.host;
-		
-		this.search();
+		this.save(config);
 	};
 
 	this.download = async (model) => { 
@@ -165,16 +170,7 @@ var App = function(client) {
 		} catch(err) { 
 			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
-	};
-	
-	this.loadSetting = () => {
-		return { 
-			host: this.getDom("host").value, 
-			alive: this.getDom("alive").value, 
-			context: Number(this.getDom("ctxnum").value), 
-			random: Number(this.getDom("random").value) 
-		};  
-	};
+	}; 
 	
 	this.refresh = (appear) => {
 		img_load.style.display = appear ? VISIBLE : HIDDEN;
@@ -195,14 +191,16 @@ var App = function(client) {
 		return "";
 	}; 
 	
-	this.run = async () => {
+	this.run = async (callback) => {
 		/* event */
-		this.getDom("chat-url").onclick = () => { 
-			this.search();	
+		this.getDom("url-refresh").onclick = () => { 
+			console.log(lb_host.value); 
+		 
+			this.connect(lb_host.value);	
 		};
 		
 		this.getDom("chat-send").onclick = () => { 
-			this.get();
+			this.chat();
 		}; 
 		
 		this.getDom("chat-pause").onclick = () => {  
@@ -241,31 +239,43 @@ var App = function(client) {
 		}; 
 		
 		this.getDom("setting-save").onclick = () => {  
-			let options = this.loadSetting();
+			let config = { 
+				host: this.getDom("host").value, 
+				alive: this.getDom("alive").value, 
+				context: Number(this.getDom("ctxnum").value), 
+				random: Number(this.getDom("random").value) 
+			};  
 			
-			chrome.storage?.local?.set({ options: options }).then(() => {				 
-				this.update(options); 
-				this.getDom("slide-menu").style.right = "-350px"; 
+			chrome.storage?.local?.set({ options: config }).then(() => { 
+				this.save(config); 
+				this.getDom("slide-menu").style.right = "-350px"; 				
 			}); 
 		};	 
 		
-		chrome.storage?.local?.get("options").then((data) => {
-			if (Object.keys(data).length > 0) {		  			
-				this.update(data.options);			 
-			} else {
-				this.update(client.Setting);	
-			} 
-		}); 
+		callback();
 	};
 }; 
 
+const app = new App();
+ 
 addEventListener("DOMContentLoaded", () => {
+	
 	client.changeState = async () => {	 
 		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
-	} 
+	}  
 	
-    const app = new App(client); 
+	let config = client.Setting;
 	
-	app.run(); 
+	app.stream = client; 
+	
+	app.run(() => { 
+		chrome.storage?.local?.get("options").then((data) => { 
+			if (Object.keys(data).length > 0) {	 
+				config = data.options; 
+			}  
+ 
+			app.update(config); 
+		});
+	}); 
 });

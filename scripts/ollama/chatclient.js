@@ -128,7 +128,11 @@ export function ChatClient(options) {
 		if (this.ollama == null) {
 			this.ollama = new Ollama({ host: this.Setting.host });			
 		}
-	} 
+	}
+	
+	this.isOpen = function() {
+		return this.ollama != null;
+	}	
 	
 	this.output = function(response) {
 		this.recevStr += response.message.content; 
