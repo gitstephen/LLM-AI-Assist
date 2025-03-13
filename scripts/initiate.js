@@ -7,7 +7,7 @@ const client = new ChatClient(options);
  
 // chat start 
 client.onBegin = async () => { 	 
-	client.chars = lb_dialog.lastChild.querySelector('p');
+	client.chars = lb_dialog.lastChild.querySelector('pre');
 	client.changeState(); 
 }
 
@@ -43,7 +43,7 @@ client.onEnd = async (response) => {
 	let dt = response.eval_duration / tt_s;
 	let token = response.eval_count / response.eval_duration * tt_s;
 	
-	client.chars.innerHTML += "<span>" + token.toFixed(1) + " tok/s, " +  dt.toFixed(2) + 's </span>';  
+	client.chars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
 	client.changeState();
 }
 

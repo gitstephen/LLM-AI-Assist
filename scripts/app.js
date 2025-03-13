@@ -25,7 +25,7 @@ var App = function() {
 		
 		child.setAttribute('class', 'llm-message ' + css);	 
 		child.innerHTML = `<div> 
-				<p>${str}</p> 
+				<pre>${str}</pre> 
 				</div>`; 
 		
 		lb_dialog.appendChild(child);

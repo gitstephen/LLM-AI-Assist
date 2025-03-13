@@ -71,10 +71,12 @@ body {
     to { opacity: 1; }
 }
 
-.llm-compose   { 
+.llm-compose { 
 	display: flex;
 	flex-direction: column; 
 	align-items: flex-start;
+	width: 50%;
+	margin: 0 auto;
 }  
 
 .llm-message {
@@ -90,10 +92,10 @@ body {
 	padding-bottom: 5px;
 }
 
-.llm-message p { 
-	line-height: 22px;
+.llm-message pre { 
+	line-height: 24px;
 	overflow-wrap: break-word;
-	white-space: pre-line;
+	white-space: pre-wrap;
 	margin: 0;
 }
 
@@ -358,6 +360,12 @@ input:checked + label:after {
 	}
 	
 	.llm-cover {
-		width: 100%;		
-	}
+		width: 100%; 
+	} 
+}
+
+@media (max-width: 1280px) {
+	.llm-compose {
+		width: 100%;
+	} 
 }
