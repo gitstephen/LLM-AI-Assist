@@ -144,7 +144,9 @@ var App = function() {
 	
 	this.save = async (config) => {
 		this.stream.Setting = config;
-
+		
+		console.log(config);
+		
 		this.connect(config.host);
 	};
 	
@@ -152,9 +154,10 @@ var App = function() {
 		this.getDom("host").value = config.host;
 		this.getDom("alive").value = config.alive;
 		this.getDom("ctxnum").value = config.context;
-		this.getDom("random").value = config.random;  
+		this.getDom("random").value = config.random;  		
+		this.getDom("think").checked = config.think; 
 		
-		this.save(config);
+		this.save(config); 
 	};
 
 	this.download = async (model) => { 
@@ -181,6 +184,10 @@ var App = function() {
 		return document.getElementById(id);
 	};
 	
+	this.getSelector = (name) => {
+		return document.querySelector(name);
+	};
+	
 	this.getListItem = (id) => {
 		let items = this.getDom(id);
 		
@@ -193,9 +200,7 @@ var App = function() {
 	
 	this.run = async (callback) => {
 		/* event */
-		this.getDom("url-refresh").onclick = () => { 
-			console.log(lb_host.value); 
-		 
+		this.getDom("url-refresh").onclick = () => {  
 			this.connect(lb_host.value);	
 		};
 		
@@ -243,7 +248,8 @@ var App = function() {
 				host: this.getDom("host").value, 
 				alive: this.getDom("alive").value, 
 				context: Number(this.getDom("ctxnum").value), 
-				random: Number(this.getDom("random").value) 
+				random: Number(this.getDom("random").value),
+				think: this.getSelector('#think:checked') ? true : false 
 			};  
 			
 			chrome.storage?.local?.set({ options: config }).then(() => { 
@@ -258,8 +264,7 @@ var App = function() {
 
 const app = new App();
  
-addEventListener("DOMContentLoaded", () => {
-	
+addEventListener("DOMContentLoaded", () => {	
 	client.changeState = async () => {	 
 		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";

@@ -1,9 +1,11 @@
+'use strict';
+
 import './whatwg-fetch/fetch.js';
-
-const version = "0.5.14";
-
+  
 const defaultPort = "11434";
 const defaultHost = `http://127.0.0.1:${defaultPort}`;
+
+const version = "0.5.16";
 
 var __defProp$1 = Object.defineProperty;
 var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -195,7 +197,15 @@ const formatHost = (host) => {
       port = url.protocol === "https:" ? "443" : "80";
     }
   }
-  let formattedHost = `${url.protocol}//${url.hostname}:${port}${url.pathname}`;
+  let auth = "";
+  if (url.username) {
+    auth = url.username;
+    if (url.password) {
+      auth += `:${url.password}`;
+    }
+    auth += "@";
+  }
+  let formattedHost = `${url.protocol}//${auth}${url.hostname}:${port}${url.pathname}`;
   if (formattedHost.endsWith("/")) {
     formattedHost = formattedHost.slice(0, -1);
   }
@@ -447,6 +457,6 @@ let Ollama$1 = class Ollama {
     return await response.json();
   }
 };
-const browser = new Ollama$1();
-
+const browser = new Ollama$1(); 
+ 
 export { Ollama$1 as Ollama, browser as default };

@@ -28,7 +28,7 @@ export function ChatClient(options) {
 		}); 
 		
 		return list; 
-	}
+	}	 
 	
 	//chat
 	this.Send = async function(llm, message, looping, tools_call) { 	
@@ -43,13 +43,16 @@ export function ChatClient(options) {
 		
 		if (looping) {
 			tools_call = [];
-		}
+		} 
+		
+		console.log("think mode: " + this.Setting.think);
 		
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,
 			messages: this.Dialogue,
 			stream: looping, 
+			think: this.Setting.think,
 			keep_alive: this.Setting.alive, 
 			options: { num_ctx: this.Setting.context, temperature: this.Setting.random },
 			tools: tools_call
@@ -96,7 +99,7 @@ export function ChatClient(options) {
 		}
 		
 		let percent = 0;
-		const file = await this.ollama.pull({ model: model, stream: true })
+		const file = await this.ollama.pull({ model: model, insecure: true, stream: true })
 			 
 		for await (const part of file) {
 			if (part.digest) {
@@ -134,17 +137,29 @@ export function ChatClient(options) {
 		return this.ollama != null;
 	}	
 	
-	this.output = function(response) {
-		this.recevStr += response.message.content; 
-		
-		if (this.onReceive != null) {
-			this.onReceive(response.message.content);
-		}		 
+	this.output = function(response) {  
+		let msg = response.message; 
+	 
+		if (msg.content != "") {
+			this.recevStr += msg.content; 
+		} 
+		 		 
+		if (msg.thinking != null && msg.thinking != "") {
+			this.transmit(msg.thinking);  
+		}  else {
+			this.transmit(msg.content); 
+		}	 
 		
 		if (response.done) {
 			if (this.onEnd != null) {
 				this.onEnd(response);
 			}
+		}
+	}
+	
+	this.transmit = function(str) {
+		if (this.onReceive != null) {
+			this.onReceive(str);  
 		}
 	}
 };

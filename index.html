@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">    
     <title>LLChat - Ollama AI Assistant</title> 
-	<link rel="stylesheet" href="styles/app.css?v=1.035" /> 
+	<link rel="stylesheet" href="styles/app.css?v=1.036" /> 
 </head>
 <body>
 <div id="vue-app" class="llm-container"> 
 	<div class="llm-header">	 
-		<div>
+		<div class="llm-selector">
 			<img src="images/cpu_icon.svg?v=1.01" class="llm-logo" alt="AI" />  
 			<select id="chat-model" class="llm-model" title="AI Model"></select>   
 		</div>
@@ -63,6 +63,14 @@
 			<label class="llm-label" for="ctxnum">Context Length</label>
 			<input type="text" id="ctxnum" class="llm-input" name="ctxnum" value="" />
 		</div>
+	    <div class="row-p "> 
+			<span class="llm-label">Thinking Mode</span>
+			<label class="switch" for="think">
+				<input type="checkbox" id="think" name="think" value="true" >
+				<span class="slider round"></span>
+			</label>
+        </div> 
+	 
 		<div class="row-p text-r">
 			<button id="setting-save" class="fl-btn">Save</button> 
 		</div>
@@ -82,7 +90,7 @@
 			<p id="llm-stats"></p> 
 		</div>
 		<div class="row-p " style="margin-top: 60px;"> 
-			LLChat version 0.23
+			LLChat version 0.24
 		</div>
 	</div>
 </div>
