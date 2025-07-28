@@ -232,7 +232,7 @@ var App = function() {
 			} else {
 				lb_stats.innerHTML = '<span class="text-err">Please input model name</span>';  
 			}
-		};
+		}; 
 		
 		this.getDom("setting-del").onclick = () => {
 			if (confirm("Are you sure to delete ai model?")) {  

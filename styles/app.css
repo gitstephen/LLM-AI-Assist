@@ -46,28 +46,37 @@ body {
 }
  
 .llm-footer { 
-	padding: 0 15px;	  
-	height: 60px;
+	padding: 15px;	  
+	height: 90px;
 	width: 100%;
 	font-size: 12px;
 	text-align: center;	 
 	color: #808080; 
+	box-sizing: border-box;
+	position: relative;
 }  
 
 .llm-chat {
 	position: relative; 
 	height: calc(100vh - 150px);  
-	width: 50%;
+	width: 66%; 
+	margin: 0 auto; 
+}
+
+.llm-scroll {
 	padding: 40px;
 	overflow-y: auto;
 	overflow-x: hidden; 
-	margin: 0 auto;
+	max-height: 100%;
+ 
 }
 
 .llm-cover { 
-	width: 50%;
+	width: 100%;
 	margin: 0 auto;
 	text-align: center;
+	position: absolute;
+	top: 100px;
 	animation: fadeIn 1s;
 }
 
@@ -80,7 +89,7 @@ body {
 	display: flex;
 	flex-direction: column; 
 	align-items: flex-start;
-	width: 50%;
+	width: 66%;
 	margin: 0 auto;
 }  
 
