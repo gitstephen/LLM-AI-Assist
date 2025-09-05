@@ -37,6 +37,7 @@ body {
 .llm-selector {
 	display: flex;
 	align-items: center;
+	padding: 5px 0;
 }
 
 .llm-title {
@@ -47,7 +48,7 @@ body {
  
 .llm-footer { 
 	padding: 15px;	  
-	height: 90px;
+	height: 140px;
 	width: 100%;
 	font-size: 12px;
 	text-align: center;	 
@@ -58,7 +59,7 @@ body {
 
 .llm-chat {
 	position: relative; 
-	height: calc(100vh - 150px);  
+	height: calc(100vh - 260px);  
 	width: 66%; 
 	margin: 0 auto; 
 }
@@ -221,6 +222,12 @@ body {
 	margin-bottom: 10px;
 	color: #696969;
 	font-size: 14px;
+}
+
+.llm-button {
+	border: none;
+	padding: 0;
+	background-color: #ffffff;
 }
 
 .llm-input {

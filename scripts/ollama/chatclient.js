@@ -31,10 +31,10 @@ export function ChatClient(options) {
 	}	 
 	
 	//chat
-	this.Send = async function(llm, message, looping, tools_call) { 	
+	this.Send = async function(llm, content, looping, tools_call) { 	
 		this.checkOllama();
 		
-		this.Dialogue.push({ role: 'user', content: message });	
+		this.Dialogue.push({ role: 'user', content: content.message, images: content.img });	
 		this.recevStr = "";		
 		
 		if (this.onBegin != null) {

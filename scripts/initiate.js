@@ -20,7 +20,7 @@ client.onResult = async (str) => {
 client.onReceive = async function(str) {  
 	client.chars.append(str); //innerText += str;
 	
-	if (lb_dialog.offsetHeight + 200 > window.innerHeight) {
+	if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
 		lb_dialog.scrollTop += 20;
 	} 
 } 

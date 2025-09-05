@@ -3,7 +3,11 @@ const HIDDEN = "none";
 
 const btnSend = document.getElementById("chat-send");
 const btnPause = document.getElementById("chat-pause");
+const btnImg = document.getElementById("chat-img");
 
+const fileImg = document.getElementById("llm-file");
+
+const img_preview = document.getElementById("llm-pic");
 const img_load = document.getElementById("llm-loading");
 const img_ollama = document.getElementById("llm-ollama");
 
@@ -12,7 +16,7 @@ const lb_search = document.getElementById("llm-search");
 
 const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
-
+ 
 var App = function() { 
 	this.state = false;
 	this.looping = true;
@@ -45,19 +49,26 @@ var App = function() {
 			img_ollama.style.display = HIDDEN;
 		}
 		
-		this.state = true; 
+		this.state = true;
+		let picData = null;
+						
+		let picMode = this.getSelector('#optPic:checked') ? true : false;
 		
+		if (picMode && img_preview.src != "") {			
+			picData = [img_preview.src.substring(23)]; 
+		}
+		 
 		//start chat
-		let message = enquire.value;
+		let content = { message: enquire.value, img: picData }; 
 			
-		this.addText(message, "llm-send");	
+		this.addText(content.message, "llm-send");	
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
 		
 		enquire.value = ""; 	
 		
 		try { 
 			//send message
-			await this.stream.Send(llm, message, this.looping, this.tools); 
+			await this.stream.Send(llm, content, this.looping, this.tools); 
 		}
 		catch(err) { 
 			this.addText(err.message, "llm-received text-err");
@@ -173,7 +184,7 @@ var App = function() {
 		} catch(err) { 
 			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
-	}; 
+	};  
 	
 	this.refresh = (appear) => {
 		img_load.style.display = appear ? VISIBLE : HIDDEN;
@@ -199,23 +210,50 @@ var App = function() {
 	}; 
 	
 	this.run = async (callback) => {
-		/* event */
-		this.getDom("url-refresh").onclick = () => {  
-			this.connect(lb_host.value);	
-		};
-		
-		this.getDom("chat-send").onclick = () => { 
+		/* button event */	
+		btnSend.onclick = () => { 
 			this.chat();
 		}; 
 		
-		this.getDom("chat-pause").onclick = () => {  
+		btnPause.onclick = () => {  
 			this.stop(); 
+		};
+		
+		btnImg.onclick = () => {
+			let mode = this.getSelector('#optPic:checked') ? true : false;
+		
+			if (!mode) {
+				return;
+			}
+			
+			fileImg.click();
+		};		
+		
+		fileImg.onchange = () => {	 
+			let file = fileImg.files[0];
+			
+			let reader = new FileReader();
+
+			reader.readAsDataURL(file);
+
+			reader.onload = function() {
+				img_preview.src = reader.result;
+			};
+
+			reader.onerror = function() {
+				console.log(reader.error);
+			}; 
+		};		
+		/* end */
+		
+		this.getDom("url-refresh").onclick = () => {  
+			this.connect(lb_host.value);	
 		};
 		
 		this.getDom("chat-clear").onclick = () => {
 			this.clear();
 		};
-	   
+			   
 		this.getDom('chat-setting').onclick = () => {
 			this.getDom("slide-menu").style.right = 0;
 		};	
@@ -233,9 +271,9 @@ var App = function() {
 				lb_stats.innerHTML = '<span class="text-err">Please input model name</span>';  
 			}
 		}; 
-		
+ 
 		this.getDom("setting-del").onclick = () => {
-			if (confirm("Are you sure to delete ai model?")) {  
+			if (confirm("Are you sure to delete ai model?")) { 
 				let name = this.getListItem("ai-model");	 
 				
 				console.log("delete");
