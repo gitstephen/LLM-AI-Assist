@@ -19,6 +19,16 @@ body {
 	margin: 0;
 } 
 
+.fx-center {
+	display: flex;
+	align-items: center;
+}
+
+.fx-right {
+	display: flex;
+	justify-content: flex-end;
+}
+
 .llm-container { 
 	position: relative;
 	width: 100%;  
@@ -34,10 +44,9 @@ body {
 	display: flex; 
 }
 
-.llm-selector {
-	display: flex;
-	align-items: center;
-	padding: 5px 0;
+.llm-selector { 
+	 
+	width: 100%;
 }
 
 .llm-title {
@@ -162,6 +171,7 @@ body {
 	display: inline-block;
 	padding: 10px;
 	margin-right: 5%;
+	border: 1px solid #e3e3e3;
 }  
 
 .llm-received > div::after { 
@@ -178,11 +188,11 @@ body {
 	margin-right: 10px;
 }
 	
-.llm-btn {
-	background: none;
-	border: none;
-	padding: 5px;
-}
+.llm-viso {
+	width: 40px; 
+	max-height: 40px; 
+	margin: 3px; 
+} 
 
 .llm-btn:hover {
 	cursor: pointer;
@@ -202,13 +212,15 @@ body {
 	min-width: 200px;
 }
 
-.llm-textarea {	
-	display: flex;
+.llm-textarea {		 
 	border: 1px solid #d0d0d0;
-	border-radius: 12px;		 
+	border-radius: 12px;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;	
 	padding: 6px;
+	text-align: left;
 	width: 100%; 
 	height: auto;
+	margin-bottom: 10px;
 	background-color: #ffffff;		
 }
 	
@@ -224,10 +236,18 @@ body {
 	font-size: 14px;
 }
 
-.llm-button {
+.llm-icon {
 	border: none;
 	padding: 0;
 	background-color: #ffffff;
+	cursor: pointer;
+}
+
+.llm-btn {
+	background: none;
+	border: none;
+	padding: 5px;
+	cursor: pointer;
 }
 
 .llm-input {
@@ -275,8 +295,9 @@ body {
 }
 
 textarea {
-	width: 97%; 
+	width: 100%; 
 	border: none;
+	padding: 0 10px;
 	font-size: 16px;
 	background-color: #ffffff;	
 }  
@@ -396,4 +417,37 @@ input:checked + .slider:before {
 	.llm-compose {
 		width: 100%;
 	} 
+}
+
+.button-checkbox {
+	display: inline-block;
+	position: relative;   
+	margin-left: 10px;
+	cursor: pointer;
+	font-size: 14px; 
+}
+
+.button-checkbox input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.check-btn
+{ 
+	display: block;
+	box-sizing: border-box;
+	padding: 3px 0; 
+	height: 25px;
+	width: 65px;
+	border: 1px solid #808080;
+	border-radius: 4px; /* Square corners */ 
+} 
+ 
+.button-checkbox input:checked ~ .check-btn {
+	color: #44A4ED;
+	border: 1px solid #2196F3;
+	background-color: #e3f2fd; 
 }

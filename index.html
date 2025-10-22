@@ -37,15 +37,23 @@
 	<div class="llm-footer">		 
 		<div class="llm-compose">
 			<div class="llm-textarea">			    
+				<img src="" id="llm-pic" class="llm-viso"  />
 				<textarea id="enquire" placeholder="write something"></textarea>			
-				<button id="chat-send" class="llm-btn" title="Send"><img src="images/send_icon.svg" alt="Pause" /></button>
-				<button id="chat-pause" class="llm-btn" title="Pause" style="display: none"><img src="images/pause_icon.svg" alt="Pause" /></button> 
 			</div> 		 
-			<div class="llm-selector">
-				<button class="llm-button" id="chat-img"><svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title/><g data-name="Layer 2" id="Layer_2"><path d="M16,29A13,13,0,1,1,29,16,13,13,0,0,1,16,29ZM16,5A11,11,0,1,0,27,16,11,11,0,0,0,16,5Z"/><path d="M16,23a1,1,0,0,1-1-1V10a1,1,0,0,1,2,0V22A1,1,0,0,1,16,23Z"/><path d="M22,17H10a1,1,0,0,1,0-2H22a1,1,0,0,1,0,2Z"/></g></svg></button>
-				<input type="checkbox" name="optPic" id="optPic" value="P" /> <label for="optPic">Image</label>
-				<img src="" id="llm-pic" style="width: 60px; height: auto; margin: 3px; " />	<input type="file" id="llm-file" style="visibility: hidden;">
+			<div class="llm-selector fx-center">
+				<div class="fx-center" style="width: 90%"> 
+					<button class="llm-icon" id="chat-img"><svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title/><g data-name="Layer 2" id="Layer_2"><path d="M16,29A13,13,0,1,1,29,16,13,13,0,0,1,16,29ZM16,5A11,11,0,1,0,27,16,11,11,0,0,0,16,5Z"/><path d="M16,23a1,1,0,0,1-1-1V10a1,1,0,0,1,2,0V22A1,1,0,0,1,16,23Z"/><path d="M22,17H10a1,1,0,0,1,0-2H22a1,1,0,0,1,0,2Z"/></g></svg></button>			  
+					<label for="optPic" class="button-checkbox"> 
+						<input type="checkbox" name="optPic" id="optPic" value="P"> 
+						<span class="check-btn">Image</span>  
+					</label>
+				 </div>
+				<div class="fx-right" style="width: 10%;">				
+					<button id="chat-send" class="llm-icon" title="Send"><img src="images/send_icon.svg" alt="Pause" /></button>
+					<button id="chat-pause" class="llm-icon" title="Pause" style="display: none"><img src="images/pause_icon.svg" alt="Pause" /></button> 
+				</div>
 			</div>
+			<input type="file" id="llm-file" style="visibility: hidden;">
 		</div> 
 	</div>    
 	<div id="slide-menu" class="slide-panel">
