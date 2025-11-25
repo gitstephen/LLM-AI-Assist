@@ -1,11 +1,11 @@
 'use strict';
 
 import './whatwg-fetch/fetch.js';
-  
+
 const defaultPort = "11434";
 const defaultHost = `http://127.0.0.1:${defaultPort}`;
 
-const version = "0.5.16";
+const version = "0.6.3";
 
 var __defProp$1 = Object.defineProperty;
 var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -13,6 +13,7 @@ var __publicField$1 = (obj, key, value) => {
   __defNormalProp$1(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+
 class ResponseError extends Error {
   constructor(error, status_code) {
     super(error);
@@ -102,6 +103,9 @@ function normalizeHeaders(headers) {
     return headers || {};
   }
 }
+const readEnvVar = (obj, key) => {
+  return obj[key];
+};
 const fetchWithHeaders = async (fetch, url, options = {}) => {
   const defaultHeaders = {
     "Content-Type": "application/json",
@@ -109,8 +113,24 @@ const fetchWithHeaders = async (fetch, url, options = {}) => {
     "User-Agent": `ollama-js/${version} (${getPlatform()})`
   };
   options.headers = normalizeHeaders(options.headers);
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:" && parsed.hostname === "ollama.com") {
+      const apiKey = typeof process === "object" && process !== null && typeof process.env === "object" && process.env !== null ? readEnvVar(process.env, "OLLAMA_API_KEY") : void 0;
+      const authorization = options.headers["authorization"] || options.headers["Authorization"];
+      if (!authorization && apiKey) {
+        options.headers["Authorization"] = `Bearer ${apiKey}`;
+      }
+    }
+  } catch (error) {
+    console.error("error parsing url", error);
+  }
   const customHeaders = Object.fromEntries(
-    Object.entries(options.headers).filter(([key]) => !Object.keys(defaultHeaders).some((defaultKey) => defaultKey.toLowerCase() === key.toLowerCase()))
+    Object.entries(options.headers).filter(
+      ([key]) => !Object.keys(defaultHeaders).some(
+        (defaultKey) => defaultKey.toLowerCase() === key.toLowerCase()
+      )
+    )
   );
   options.headers = {
     ...defaultHeaders,
@@ -157,7 +177,7 @@ const parseJSON = async function* (itr) {
     if (done) {
       break;
     }
-    buffer += decoder.decode(chunk);
+    buffer += decoder.decode(chunk, { stream: true });
     const parts = buffer.split("\n");
     buffer = parts.pop() ?? "";
     for (const part of parts) {
@@ -168,6 +188,7 @@ const parseJSON = async function* (itr) {
       }
     }
   }
+  buffer += decoder.decode();
   for (const part of buffer.split("\n").filter((p) => p !== "")) {
     try {
       yield JSON.parse(part);
@@ -456,7 +477,45 @@ let Ollama$1 = class Ollama {
     });
     return await response.json();
   }
+  /**
+   * Returns the Ollama server version.
+   * @returns {Promise<VersionResponse>} - The server version object.
+   */
+  async version() {
+    const response = await get(this.fetch, `${this.config.host}/api/version`, {
+      headers: this.config.headers
+    });
+    return await response.json();
+  }
+  /**
+   * Performs web search using the Ollama web search API
+   * @param request {WebSearchRequest} - The search request containing query and options
+   * @returns {Promise<WebSearchResponse>} - The search results
+   * @throws {Error} - If the request is invalid or the server returns an error
+   */
+  async webSearch(request) {
+    if (!request.query || request.query.length === 0) {
+      throw new Error("Query is required");
+    }
+    const response = await post(this.fetch, `https://ollama.com/api/web_search`, { ...request }, {
+      headers: this.config.headers
+    });
+    return await response.json();
+  }
+  /**
+   * Fetches a single page using the Ollama web fetch API
+   * @param request {WebFetchRequest} - The fetch request containing a URL
+   * @returns {Promise<WebFetchResponse>} - The fetch result
+   * @throws {Error} - If the request is invalid or the server returns an error
+   */
+  async webFetch(request) {
+    if (!request.url || request.url.length === 0) {
+      throw new Error("URL is required");
+    }
+    const response = await post(this.fetch, `https://ollama.com/api/web_fetch`, { ...request }, { headers: this.config.headers });
+    return await response.json();
+  }
 };
-const browser = new Ollama$1(); 
- 
+const browser = new Ollama$1();
+
 export { Ollama$1 as Ollama, browser as default };
