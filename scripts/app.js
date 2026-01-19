@@ -4,6 +4,7 @@ const HIDDEN = "none";
 const btnSend = document.getElementById("chat-send");
 const btnPause = document.getElementById("chat-pause");
 const btnImg = document.getElementById("chat-img");
+const btnCode = document.getElementById("chat-code");
 
 const fileImg = document.getElementById("llm-file");
 
@@ -214,6 +215,12 @@ var App = function() {
 		btnSend.onclick = () => { 
 			this.chat();
 		}; 
+		
+		btnCode.onclick = () => { 
+		    this.getDom("enquire").value = "請優化以下代碼";		
+			
+			this.chat();
+		};
 		
 		btnPause.onclick = () => {  
 			this.stop(); 
