@@ -20,9 +20,8 @@ const lb_stats = document.getElementById("llm-stats");
  
 var App = function() { 
 	this.state = false;
-	this.looping = true;
-	
-	this.tools = null;
+ 
+	this.tools = null;	
 	this.stream = null;
 	
 	this.addText = async (str, css) => {
@@ -66,10 +65,12 @@ var App = function() {
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
 		
 		enquire.value = ""; 	
+		let config = this.stream.Setting;
 		
 		try { 
+			//console.log(`stream: ${config.loop}, thinking: ${config.think}`);
 			//send message
-			await this.stream.Send(llm, content, this.looping, this.tools); 
+			await this.stream.Send(llm, content, this.tools); 
 		}
 		catch(err) { 
 			this.addText(err.message, "llm-received text-err");
@@ -166,7 +167,8 @@ var App = function() {
 		this.getDom("host").value = config.host;
 		this.getDom("alive").value = config.alive;
 		this.getDom("ctxnum").value = config.context;
-		this.getDom("random").value = config.random;  		
+		this.getDom("random").value = config.random;
+		this.getDom("stream").checked = config.loop;
 		this.getDom("think").checked = config.think; 
 		
 		this.save(config); 
@@ -294,12 +296,13 @@ var App = function() {
 				alive: this.getDom("alive").value, 
 				context: Number(this.getDom("ctxnum").value), 
 				random: Number(this.getDom("random").value),
+				loop: this.getSelector('#stream:checked') ? true : false,
 				think: this.getSelector('#think:checked') ? true : false 
 			};  
 			
 			chrome.storage?.local?.set({ options: config }).then(() => { 
 				this.save(config); 
-				this.getDom("slide-menu").style.right = "-350px"; 				
+				this.getDom("slide-menu").style.right = "-350px";  
 			}); 
 		};	 
 		
@@ -309,8 +312,8 @@ var App = function() {
 
 const app = new App();
  
-addEventListener("DOMContentLoaded", () => {	
-	client.changeState = async () => {	 
+addEventListener("DOMContentLoaded", () => { 
+	client.changeState = async () => { 
 		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
 	}  
@@ -326,6 +329,37 @@ addEventListener("DOMContentLoaded", () => {
 			}  
  
 			app.update(config); 
+			app.tools = [
+			{
+				type: 'function',
+				function: {
+					name: 'addTwoNumbers',
+					description: 'Add two numbers together',
+					parameters: {
+						type: 'object',
+						required: ['a', 'b'],
+						properties: {
+							a: { type: 'number', description: 'The first number' },
+							b: { type: 'number', description: 'The second number' }
+						}
+					}
+				}
+			},
+			{
+				type: 'function',
+				function: {
+					name: 'subtractTwoNumbers',
+					description: 'Subtract two numbers',
+					parameters: {
+						type: 'object',
+						required: ['a', 'b'],
+						properties: {
+							a: { type: 'number', description: 'The first number' },
+							b: { type: 'number', description: 'The second number' }
+						}
+					}
+				}			
+			}];
 		});
 	}); 
 });

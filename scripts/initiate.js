@@ -4,7 +4,12 @@ const tt_s = 1000 * 1000 * 1000;
 
 let options = { host: "http://localhost:11434", alive: "1h", context: 8192, random: 0.7 };
 const client = new ChatClient(options); 
- 
+
+const func_list = {
+    addTwoNumbers: (args) => { return args.a + args.b; },
+    subtractTwoNumbers: (args) => { return args.a - args.b; }
+};
+
 // chat start 
 client.onBegin = async () => { 	 
 	client.chars = lb_dialog.lastChild.querySelector('pre');
@@ -26,26 +31,26 @@ client.onReceive = async function(str) {
 } 
 
 //char end
-client.onEnd = async (response) => { 
-	console.log(response);
+client.onEnd = async (res) => { 
+	console.log(res);
 	
-	if (response.message.tool_calls) { 	
+	if (res.message.tool_calls) { 	
         // Process tool calls from the response
-        for (const tool of response.message.tool_calls) {
-            let func = tool.function;
+        const tool = res.message.tool_calls[0];
+        let func = tool.function;
 			
-			const callFunc = func_list[func.name];	 
-            if (callFunc) {
-			    client.chars.innerHTML += 'The result is: ' + callFunc(func.arguments); 
-            } else {
-                client.chars.innerHTML += 'Function ' + func.name + ' not found';
-            }
-        }
-	}
+		const callFunc = func_list[func.name];	 
+        
+		if (callFunc) {
+			client.chars.innerHTML += 'The result is: ' + callFunc(func.arguments); 
+		} else {
+			client.chars.innerHTML += 'Function ' + func.name + ' not found';
+		}        
+	}	
 
 	//show tokens per second
-	let dt = response.eval_duration / tt_s;
-	let token = response.eval_count / response.eval_duration * tt_s;
+	let dt = res.eval_duration / tt_s;
+	let token = res.eval_count / res.eval_duration * tt_s;
 	
 	client.chars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
 	client.changeState();

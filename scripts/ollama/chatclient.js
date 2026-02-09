@@ -31,7 +31,7 @@ export function ChatClient(options) {
 	}	 
 	
 	//chat
-	this.Send = async function(llm, content, looping, tools_call) { 	
+	this.Send = async function(llm, content, tools_call) { 	
 		this.checkOllama();
 		
 		this.Dialogue.push({ role: 'user', content: content.message, images: content.img });	
@@ -41,17 +41,15 @@ export function ChatClient(options) {
 			this.onBegin();
 		}
 		
-		if (looping) {
+		if (this.Setting.loop) {
 			tools_call = [];
-		} 
-		
-		console.log("think mode: " + this.Setting.think);
+		}  
 		
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,
 			messages: this.Dialogue,
-			stream: looping, 
+			stream: this.Setting.loop, 
 			think: this.Setting.think,
 			keep_alive: this.Setting.alive, 
 			options: { num_ctx: this.Setting.context, temperature: this.Setting.random },
@@ -63,7 +61,7 @@ export function ChatClient(options) {
 			this.onResult();
 		}
 
-		if (looping) {
+		if (this.Setting.loop) {
 			for await (const part of response) {
 				this.output(part);				
 			}	 
