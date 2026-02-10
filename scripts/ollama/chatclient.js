@@ -3,6 +3,7 @@ import { Ollama } from './browser.js';
 export function ChatClient(options) {  
 	this.Dialogue = []; 
 	this.Setting = options; 
+	this.Tools = [];
 	
 	this.recevStr = "";
 	this.ollama = null; 
@@ -31,7 +32,7 @@ export function ChatClient(options) {
 	}	 
 	
 	//chat
-	this.Send = async function(llm, content, tools_call) { 	
+	this.Send = async function(llm, content) { 	
 		this.checkOllama();
 		
 		this.Dialogue.push({ role: 'user', content: content.message, images: content.img });	
@@ -41,10 +42,8 @@ export function ChatClient(options) {
 			this.onBegin();
 		}
 		
-		if (this.Setting.loop) {
-			tools_call = [];
-		}  
-		
+		let tools_call = this.Setting.loop ? [] : this.Tools;
+	 
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,

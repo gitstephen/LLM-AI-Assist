@@ -268,6 +268,16 @@ body {
 	display: flex; 
 }
 
+.llm-block {
+	display: flex;
+	justify-content: center; 
+}
+
+.block-item {
+	flex-basis: 50%;
+	flex-grow: 1;
+}
+
 .llm-menu {
 	flex: 30%;
 	text-align: right;

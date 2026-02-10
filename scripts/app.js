@@ -19,9 +19,7 @@ const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
  
 var App = function() { 
-	this.state = false;
- 
-	this.tools = null;	
+	this.state = false; 
 	this.stream = null;
 	
 	this.addText = async (str, css) => {
@@ -70,7 +68,7 @@ var App = function() {
 		try { 
 			//console.log(`stream: ${config.loop}, thinking: ${config.think}`);
 			//send message
-			await this.stream.Send(llm, content, this.tools); 
+			await this.stream.Send(llm, content); 
 		}
 		catch(err) { 
 			this.addText(err.message, "llm-received text-err");
@@ -328,38 +326,7 @@ addEventListener("DOMContentLoaded", () => {
 				config = data.options; 
 			}  
  
-			app.update(config); 
-			app.tools = [
-			{
-				type: 'function',
-				function: {
-					name: 'addTwoNumbers',
-					description: 'Add two numbers together',
-					parameters: {
-						type: 'object',
-						required: ['a', 'b'],
-						properties: {
-							a: { type: 'number', description: 'The first number' },
-							b: { type: 'number', description: 'The second number' }
-						}
-					}
-				}
-			},
-			{
-				type: 'function',
-				function: {
-					name: 'subtractTwoNumbers',
-					description: 'Subtract two numbers',
-					parameters: {
-						type: 'object',
-						required: ['a', 'b'],
-						properties: {
-							a: { type: 'number', description: 'The first number' },
-							b: { type: 'number', description: 'The second number' }
-						}
-					}
-				}			
-			}];
+			app.update(config);  
 		});
 	}); 
 });

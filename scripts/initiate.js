@@ -1,14 +1,13 @@
 import { ChatClient } from './ollama/chatclient.js';
- 
+import { tools, func_list } from './tools.js';
+
 const tt_s = 1000 * 1000 * 1000; 
 
 let options = { host: "http://localhost:11434", alive: "1h", context: 8192, random: 0.7 };
-const client = new ChatClient(options); 
 
-const func_list = {
-    addTwoNumbers: (args) => { return args.a + args.b; },
-    subtractTwoNumbers: (args) => { return args.a - args.b; }
-};
+const client = new ChatClient(options);  
+
+client.Tools = tools;
 
 // chat start 
 client.onBegin = async () => { 	 
@@ -16,7 +15,7 @@ client.onBegin = async () => {
 	client.changeState(); 
 }
 
-// chat response result 
+// chat result 
 client.onResult = async (str) => {
 	client.chars.innerHTML = "";	  
 }
@@ -30,7 +29,7 @@ client.onReceive = async function(str) {
 	} 
 } 
 
-//char end
+//char output end
 client.onEnd = async (res) => { 
 	console.log(res);
 	
@@ -39,10 +38,11 @@ client.onEnd = async (res) => {
         const tool = res.message.tool_calls[0];
         let func = tool.function;
 			
-		const callFunc = func_list[func.name];	 
+		const dispatched = func_list[func.name];	 
         
-		if (callFunc) {
-			client.chars.innerHTML += 'The result is: ' + callFunc(func.arguments); 
+		if (dispatched) {
+			let res = dispatched(func.arguments); 
+			client.chars.innerHTML += res;
 		} else {
 			client.chars.innerHTML += 'Function ' + func.name + ' not found';
 		}        

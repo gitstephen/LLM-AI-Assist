@@ -77,41 +77,42 @@
 			<label class="llm-label" for="ctxnum">Context Length</label>
 			<input type="text" id="ctxnum" class="llm-input" name="ctxnum" value="" />
 		</div>
-		<div class="row-p "> 
-			<span class="llm-label">Stream Mode</span>
-			<label class="switch" for="stream">
-				<input type="checkbox" id="stream" name="stream" value="true" >
-				<span class="slider round"></span>
-			</label>
-        </div> 
-	    <div class="row-p "> 
-			<span class="llm-label">Thinking Mode</span>
-			<label class="switch" for="think">
-				<input type="checkbox" id="think" name="think" value="true" >
-				<span class="slider round"></span>
-			</label>
-        </div> 
-	 
+		<div class="row-p llm-block"> 
+			<div class="block-item">
+				<span class="llm-label">Stream Mode</span>
+				<label class="switch" for="stream">
+					<input type="checkbox" id="stream" name="stream" value="true" >
+					<span class="slider round"></span>
+				</label>
+			</div> 
+			<div class="block-item">
+				<span class="llm-label">Thinking Mode</span>
+				<label class="switch" for="think">
+					<input type="checkbox" id="think" name="think" value="true" >
+					<span class="slider round"></span>
+				</label>
+			</div> 
+		</div>
 		<div class="row-p">
 			<button id="setting-save" class="fl-btn">Save</button> 
 		</div>
 		<div class="row-p">
-			<label class="llm-label">AI Model</label>
+			<label class="llm-label">Model Id</label>
 			<div class="llm-grid ">
 			    <select id="ai-model" class="llm-input llm-drop" title="AI Model"></select>  
 				 <button id="setting-del" class="llm-btn" title="Delete"><image src="images/trash_icon.svg" alt="Delete" /></button>  
 			</div>
 		</div>
 		<div class="row-p "> 
-			<label class="llm-label" for="llm-pull">Download</label>
+			<label class="llm-label" for="llm-pull">Download Model</label>
 			<div class="llm-grid ">
-				<input type="text" id="llm-pull" class="llm-input" name="download" value="" />  
+				<input type="text" id="llm-pull" class="llm-input" name="download" value="" placeholder="input model name/id" />  
 				<button id="chat-pull" class="llm-btn" title="Pull"><image src="images/pull_icon.svg" alt="Download" /></button>
 			</div>
 			<p id="llm-stats"></p> 
 		</div>
 		<div class="row-p " style="margin-top: 60px;"> 
-			LLChat version 0.25
+			LLChat version 0.26
 		</div>
 	</div>
 </div>
