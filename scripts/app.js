@@ -168,6 +168,7 @@ var App = function() {
 		this.getDom("random").value = config.random;
 		this.getDom("stream").checked = config.loop;
 		this.getDom("think").checked = config.think; 
+		this.getDom("tools").checked = config.tools; 
 		
 		this.save(config); 
 	};
@@ -295,7 +296,8 @@ var App = function() {
 				context: Number(this.getDom("ctxnum").value), 
 				random: Number(this.getDom("random").value),
 				loop: this.getSelector('#stream:checked') ? true : false,
-				think: this.getSelector('#think:checked') ? true : false 
+				think: this.getSelector('#think:checked') ? true : false,
+				tools: this.getSelector('#tools:checked') ? true : false 
 			};  
 			
 			chrome.storage?.local?.set({ options: config }).then(() => { 

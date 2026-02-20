@@ -50,6 +50,20 @@ export const tools = [
 			required: ['name']
 		}		
 	}
+},
+{
+	type: 'function',
+	function: {
+		name: 'getCryptoConins',
+		description: 'find the price of crypto currency market',
+		parameters: {
+			type: 'object', 
+			properties: {
+				name: { type: 'string', description: 'crypto name' } 
+			},
+			required: ['name']
+		}		
+	}
 }];
 
 export const func_list = {
@@ -57,7 +71,9 @@ export const func_list = {
 		return args.a + args.b; 
 	},
 	getTemperature: (args) => {
-		return args.city + " 90"; 
+		window.open("https://www.accuweather.com/", "Ollama");
+		
+		return "find " + args.city + " temperature on accuweather website";  
 	},
 	getCurrentDate: (args) => {
 		const date = new Date();
@@ -93,6 +109,13 @@ export const func_list = {
 		
 		window.open(url, "Ollama");
 		
-		return "fidn " + args.name + " on google map";
+		return "find " + args.name + " on google map";
+	},
+	getCryptoConins: (args) => {
+		const url = "https://coinmarketcap.com";
+		
+		window.open(url, "Ollama");
+		
+		return "find " + args.name + " on coinmarketcap";
 	}
 };

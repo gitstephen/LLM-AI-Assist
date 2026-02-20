@@ -10,12 +10,14 @@
 <div id="vue-app" class="llm-container"> 
 	<div class="llm-header">	 
 		<div class="llm-selector">
-			<img src="images/cpu_icon.svg?v=1.01" class="llm-logo" alt="AI" />  
+			<svg id='Computer_Chip_1_24' width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#ffffff' opacity='0'/><style>.cls-3 {stroke: #ffffff; stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;}</style><g transform="matrix(1.43 0 0 1.43 12 12)" > <g transform="matrix(1 0 0 1 0 0)" ><rect class="cls-3" x="-4" y="-4" rx="1" ry="1" width="8" height="8" /></g><g transform="matrix(1 0 0 1 -2 -5.25)" ><line class="cls-3"  x1="0" y1="1.25" x2="0" y2="-1.25" /></g><g transform="matrix(1 0 0 1 2 -5.25)" ><line class="cls-3"  x1="0" y1="1.25" x2="0" y2="-1.25" /></g><g transform="matrix(1 0 0 1 -5.25 2)" ><line class="cls-3"  x1="1.25" y1="0" x2="-1.25" y2="0" /></g><g transform="matrix(1 0 0 1 -5.25 -2)" ><line class="cls-3"  x1="1.25" y1="0" x2="-1.25" y2="0" /></g><g transform="matrix(1 0 0 1 2 5.25)" ><line class="cls-3"  x1="0" y1="-1.25" x2="0" y2="1.25" /></g><g transform="matrix(1 0 0 1 -2 5.25)" ><line class="cls-3"  x1="0" y1="-1.25" x2="0" y2="1.25" /></g><g transform="matrix(1 0 0 1 5.25 -2)" ><line class="cls-3"  x1="-1.25" y1="0" x2="1.25" y2="0" /></g><g transform="matrix(1 0 0 1 5.25 2)" ><line class="cls-3"  x1="-1.25" y1="0" x2="1.25" y2="0" /></g><g transform="matrix(1 0 0 1 0.5 0.5)" ><line class="cls-3"  x1="1" y1="0" x2="-1" y2="0" /></g></g></svg>
 			<select id="chat-model" class="llm-model" title="AI Model"></select>   
 		</div>
 		<div class="llm-menu"> 		 
-			<button id="chat-clear" class="llm-btn" title="New chat" ><img src="images/chat_icon.svg" alt="chat" /></button> 
-			<button id="chat-setting" class="llm-btn" title="Setting" ><img src="images/setting_icon.svg" alt="setting" /></button> 
+			<button id="chat-clear" class="llm-btn" title="New chat" ><svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><style>.cls-1{stroke: #ffffff; stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1; }</style>
+<g transform="matrix(1.43 0 0 1.43 12 12)" ><g transform="matrix(1 0 0 1 -3.5 0)" ><circle class="cls-1" cx="0" cy="0" r="0.5" /></g><g transform="matrix(1 0 0 1 -0.25 0)" >
+<circle class="cls-1" cx="0" cy="0" r="0.5" /></g><g transform="matrix(1 0 0 1 3 0)" ><circle class="cls-1" cx="0" cy="0" r="0.5" /></g><g transform="matrix(1 0 0 1 0 0)" ><path style="stroke: #ffffff; stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-7, -7)" d="M 7 0.5 C 4.604389899000056 0.5007457503630364 2.403377367775061 1.8191307811048616 1.272234971385819 3.9308753658611164 C 0.141092574996577 6.042619950617372 0.2632003790826145 8.605369438194115 1.589999999999998 10.599999999999998 L 0.5 13.5 L 4.15 12.84 C 6.5563712620697405 14.015923030087734 9.437666851063202 13.595443572552915 11.4076217744364 11.780865047527467 C 13.377576697809598 9.96628652250202 14.03282973985829 7.1291558071052314 13.058121904969541 4.634489043745379 C 12.083414070080792 2.139822280385527 9.678323192535174 0.49841888203738804 6.999999999999998 0.5 Z" stroke-linecap="round" /></g></g></svg>  </button> 
+			<button id="chat-setting" class="llm-btn" title="Setting" ><svg version="1.1" viewBox="0 0 32 32" width="24" height="24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><circle cx="16" cy="16" fill="none"  r="4" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/><path d="  M27.758,10.366l-1-1.732c-0.552-0.957-1.775-1.284-2.732-0.732L23.5,8.206C21.5,9.36,19,7.917,19,5.608V5c0-1.105-0.895-2-2-2h-2  c-1.105,0-2,0.895-2,2v0.608c0,2.309-2.5,3.753-4.5,2.598L7.974,7.902C7.017,7.35,5.794,7.677,5.242,8.634l-1,1.732  c-0.552,0.957-0.225,2.18,0.732,2.732L5.5,13.402c2,1.155,2,4.041,0,5.196l-0.526,0.304c-0.957,0.552-1.284,1.775-0.732,2.732  l1,1.732c0.552,0.957,1.775,1.284,2.732,0.732L8.5,23.794c2-1.155,4.5,0.289,4.5,2.598V27c0,1.105,0.895,2,2,2h2  c1.105,0,2-0.895,2-2v-0.608c0-2.309,2.5-3.753,4.5-2.598l0.526,0.304c0.957,0.552,2.18,0.225,2.732-0.732l1-1.732  c0.552-0.957,0.225-2.18-0.732-2.732L26.5,18.598c-2-1.155-2-4.041,0-5.196l0.526-0.304C27.983,12.546,28.311,11.323,27.758,10.366z  " fill="none" id="XMLID_242_" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/></svg></button> 
 		</div>	 			 
 	</div>
 	<div id="llm-dialog" class="llm-chat">
@@ -26,7 +28,7 @@
 			<div id="llm-search" style="display: none;">			
 				<div class="llm-grid">			
 					<input type="text" id="llm-host" class="llm-input" name="host_url" value="" />  
-					<button id="url-refresh" class="llm-btn" title="Refresh"><image src="images/refresh_icon.svg" alt="Download" /></button>
+					<button id="url-refresh" class="llm-btn" title="Refresh"><svg id='reload_24' width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/><g transform="matrix(1 0 0 1 12 12)"> <g transform="matrix(1 0 0 1 0 0)"><path style="stroke: none; stroke-width: 2; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-12, -12)" d="M 0 0 L 24 0 L 24 24 L 0 24 z" stroke-linecap="round" /></g><g transform="matrix(1 0 0 1 -0.03 0)" ><path style="stroke: rgb(0,0,0); stroke-width: 2; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-11.97, -12)" d="M 19.933 13.041 C 19.409600508326893 17.032174033243933 16.002178455928366 20.012865275701937 11.97684982778393 20.000756313519197 C 7.951521199639496 19.988647351336457 4.5620936377245656 16.987509878882207 4.06271583858201 12.993259134969424 C 3.5633380394394543 8.99900839105664 6.109555986674202 5.255771891552854 10.008000000000006 4.252999999999998 C 13.907 3.2510000000000003 17.942999999999998 5.26 19.433 9" stroke-linecap="round" /></g><g transform="matrix(1 0 0 1 5.5 -5.5)" ><path style="stroke: rgb(0,0,0); stroke-width: 2; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-17.5, -6.5)" d="M 20 4 L 20 9 L 15 9" stroke-linecap="round" /></g> </g></svg> </button>
 				</div>
 				<div id="conn-llm" class="text-err"></div>
 			</div>
@@ -42,16 +44,16 @@
 			</div> 		 
 			<div class="llm-selector fx-center">
 				<div class="fx-center" style="width: 90%"> 
-					<button class="llm-icon" id="chat-img"><svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title/><g data-name="Layer 2" id="Layer_2"><path d="M16,29A13,13,0,1,1,29,16,13,13,0,0,1,16,29ZM16,5A11,11,0,1,0,27,16,11,11,0,0,0,16,5Z"/><path d="M16,23a1,1,0,0,1-1-1V10a1,1,0,0,1,2,0V22A1,1,0,0,1,16,23Z"/><path d="M22,17H10a1,1,0,0,1,0-2H22a1,1,0,0,1,0,2Z"/></g></svg></button>			  
+					<button class="llm-icon" id="chat-img"><svg viewBox="0 0 32 32" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title/><g data-name="Layer 2" id="Layer_2"><path d="M16,29A13,13,0,1,1,29,16,13,13,0,0,1,16,29ZM16,5A11,11,0,1,0,27,16,11,11,0,0,0,16,5Z"/><path d="M16,23a1,1,0,0,1-1-1V10a1,1,0,0,1,2,0V22A1,1,0,0,1,16,23Z"/><path d="M22,17H10a1,1,0,0,1,0-2H22a1,1,0,0,1,0,2Z"/></g></svg></button>			  
 					<label for="optPic" class="button-checkbox"> 
 						<input type="checkbox" name="optPic" id="optPic" value="P"> 
 						<span class="check-btn">Image</span>  
 					</label>
-				</div>
-				<div><button id="chat-code" class="llm-icon" title="Code"><img src="images/code_icon.svg" alt="Pause" /></button></div>
-				<div class="fx-right" style="width: 10%;">				
-					<button id="chat-send" class="llm-icon" title="Send"><img src="images/send_icon.svg" alt="Pause" /></button>
-					<button id="chat-pause" class="llm-icon" title="Pause" style="display: none"><img src="images/pause_icon.svg" alt="Pause" /></button> 
+				</div> 
+				<div class="fx-right" style="width: 10%;">
+					<button id="chat-code" class="llm-icon" title="Code"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></button>		
+					<button id="chat-send" class="llm-icon" title="Send"><svg id="Layer_1" version="1.1" viewBox="0 0 512 512" width="24" height="24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><path d="M341.8,50.9c113.3,47.7,166.5,178.3,118.7,291.6S282.2,508.9,168.9,461.2S2.5,282.9,50.3,169.6  C85,87.1,165.9,33.4,255.4,33.4C285.1,33.4,314.5,39.3,341.8,50.9z M63.4,255.4c0,106,86,192,192,192s192-86,192-192  s-86-192-192-192S63.4,149.4,63.4,255.4z M370.7,227.4L255.4,112.1L140.1,227.4l21.2,21.2l79.1-79.2v208.2h30V169.4l79.1,79.1  L370.7,227.4z"/></svg></button>
+					<button id="chat-pause" class="llm-icon" title="Pause" style="display: none"><svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><g data-name="18. Pause"><path d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,22A10,10,0,1,1,22,12,10.011,10.011,0,0,1,12,22Z"/><path d="M9,8A1,1,0,0,0,8,9v6a1,1,0,0,0,2,0V9A1,1,0,0,0,9,8Z"/><path d="M15,8a1,1,0,0,0-1,1v6a1,1,0,0,0,2,0V9A1,1,0,0,0,15,8Z"/></g></svg></button> 
 				</div>
 			</div>
 			<input type="file" id="llm-file" style="visibility: hidden;">
@@ -59,7 +61,7 @@
 	</div>    
 	<div id="slide-menu" class="slide-panel">
 		<div class="text-r">
-			<button id="setting-close" class="llm-btn" title="Close"><image src="images/close_icon.svg" alt="close" /></button> 
+			<button id="setting-close" class="llm-btn" title="Close"><svg data-name="Layer 1"  viewBox="0 0 200 200" width="24" height="24"  xmlns="http://www.w3.org/2000/svg"><title/><path d="M114,100l49-49a9.9,9.9,0,0,0-14-14L100,86,51,37A9.9,9.9,0,0,0,37,51l49,49L37,149a9.9,9.9,0,0,0,14,14l49-49,49,49a9.9,9.9,0,0,0,14-14Z"/></svg></button> 
 		</div>
 		<div class="row-p">
 			<label class="llm-label" for="host">Ollama Host Url</label>
@@ -93,6 +95,15 @@
 				</label>
 			</div> 
 		</div>
+		<div class="row-p llm-block"> 
+			<div class="block-item">
+				<span class="llm-label">Tools Call</span>
+				<label class="switch" for="tools">
+					<input type="checkbox" id="tools" name="tools" value="true" >
+					<span class="slider round"></span>
+				</label>
+			</div>  
+		</div>
 		<div class="row-p">
 			<button id="setting-save" class="fl-btn">Save</button> 
 		</div>
@@ -100,14 +111,14 @@
 			<label class="llm-label">Model Id</label>
 			<div class="llm-grid ">
 			    <select id="ai-model" class="llm-input llm-drop" title="AI Model"></select>  
-				 <button id="setting-del" class="llm-btn" title="Delete"><image src="images/trash_icon.svg" alt="Delete" /></button>  
+				 <button id="setting-del" class="llm-btn" title="Delete"><svg viewBox="0 0 24 24" width="24px" height="24px"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/></svg> </button>  
 			</div>
 		</div>
 		<div class="row-p "> 
 			<label class="llm-label" for="llm-pull">Download Model</label>
 			<div class="llm-grid ">
 				<input type="text" id="llm-pull" class="llm-input" name="download" value="" placeholder="input model name/id" />  
-				<button id="chat-pull" class="llm-btn" title="Pull"><image src="images/pull_icon.svg" alt="Download" /></button>
+				<button id="chat-pull" class="llm-btn" title="Pull"><svg class="icon icon-tabler icon-tabler-cloud-download" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none" stroke="none"/><path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4"/><line x1="12" x2="12" y1="13" y2="22"/><polyline points="9 19 12 22 15 19"/></svg></button>
 			</div>
 			<p id="llm-stats"></p> 
 		</div>

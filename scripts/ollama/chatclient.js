@@ -42,7 +42,9 @@ export function ChatClient(options) {
 			this.onBegin();
 		}
 		
-		let tools_call = this.Setting.loop ? [] : this.Tools;
+		let tools_func = this.Setting.tools ? this.Tools : [];
+		
+		console.log("tools call: " + this.Setting.tools);
 	 
 		//create chat
 		const response = await this.ollama.chat({
@@ -52,7 +54,7 @@ export function ChatClient(options) {
 			think: this.Setting.think,
 			keep_alive: this.Setting.alive, 
 			options: { num_ctx: this.Setting.context, temperature: this.Setting.random },
-			tools: tools_call
+			tools: tools_func
 		});	 		
 		
 		//output message

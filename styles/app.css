@@ -45,7 +45,8 @@ body {
 }
 
 .llm-selector { 
-	 
+	display: flex;
+	align-items: center;	 
 	width: 100%;
 }
 
@@ -232,13 +233,14 @@ body {
 .llm-label {
 	display: block;
 	margin-bottom: 10px;
-	color: #696969;
+	color: #242424;
 	font-size: 14px;
 }
 
 .llm-icon {
 	border: none;
 	padding: 0;
+	margin-left: 10px;
 	background-color: #ffffff;
 	cursor: pointer;
 }
@@ -291,9 +293,10 @@ body {
 	background: #ffffff;
 	padding: 20px;
 	width: 300px;
-	height: 100%; 
+	height: 100vh; 
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	transition: right 0.3s ease-in-out;
+	overflow: auto;
 } 
 
 .slide-open {
@@ -337,7 +340,7 @@ textarea:focus {
   right: 0;
   bottom: 0;
   background-color: #ffffff;
-  border: 1px solid #a0a0a0;
+  border: 1px solid #242424;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -349,13 +352,13 @@ textarea:focus {
   width: 26px;
   left: 4px;
   bottom: 3px;
-  background-color: #a0a0a0;
+  background-color: #242424;
   -webkit-transition: .4s;
   transition: .4s;
 }
 
 input:checked + .slider {
-  background-color: #a0a0a0;
+  background-color: #242424;
 }
  
 
