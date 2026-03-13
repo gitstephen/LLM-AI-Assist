@@ -64,7 +64,7 @@ export const tools = [
 			required: ['name']
 		}		
 	}
-}];
+}]; 
 
 export const func_list = {
     addTwoNumbers: (args) => {
@@ -117,5 +117,5 @@ export const func_list = {
 		window.open(url, "Ollama");
 		
 		return "find " + args.name + " on coinmarketcap";
-	}
+	} 
 };

@@ -16,7 +16,7 @@ client.onBegin = async () => {
 }
 
 // chat result 
-client.onResult = async (str) => {
+client.onResult = async () => {
 	client.chars.innerHTML = "";	  
 }
 
@@ -31,7 +31,7 @@ client.onReceive = async function(str) {
 
 //char output end
 client.onEnd = async (res) => { 
-	console.log(res);
+	//console.log(res);
 	
 	if (res.message.tool_calls) { 	
         // Process tool calls from the response

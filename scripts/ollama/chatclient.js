@@ -1,11 +1,11 @@
 import { Ollama } from './browser.js';
  
-export function ChatClient(options) {  
-	this.Dialogue = []; 
+export function ChatClient(options) { 
 	this.Setting = options; 
 	this.Tools = [];
-	
-	this.recevStr = "";
+	this.Dialogue = []; 
+	this.result = "";
+
 	this.ollama = null; 
 
 	//event	
@@ -31,12 +31,16 @@ export function ChatClient(options) {
 		return list; 
 	}	 
 	
+	this.Add = function(r, msg, img) {
+		this.Dialogue.push({ role: r, content: msg, images: img });  
+	}
+	
 	//chat
 	this.Send = async function(llm, content) { 	
-		this.checkOllama();
+		this.checkOllama(); 
+		this.result = "";	
 		
-		this.Dialogue.push({ role: 'user', content: content.message, images: content.img });	
-		this.recevStr = "";		
+		this.Add('user', content.message, content.img);					
 		
 		if (this.onBegin != null) {
 			this.onBegin();
@@ -44,7 +48,7 @@ export function ChatClient(options) {
 		
 		let tools_func = this.Setting.tools ? this.Tools : [];
 		
-		console.log("tools call: " + this.Setting.tools);
+		//console.log("tools call: " + this.Setting.tools);
 	 
 		//create chat
 		const response = await this.ollama.chat({
@@ -68,10 +72,7 @@ export function ChatClient(options) {
 			}	 
 		} else {
 			this.output(response); 
-		}	
-		
-		//add message to loop
-		this.Dialogue.push({ role: 'assistant', content: this.recevStr });  
+		}	 
 	}
 	
 	//abort
@@ -128,7 +129,7 @@ export function ChatClient(options) {
 	
 	this.checkOllama = function() {
 		if (this.ollama == null) {
-			this.ollama = new Ollama({ host: this.Setting.host });			
+			this.ollama = new Ollama({ host: this.Setting.host });
 		}
 	}
 	
@@ -138,27 +139,26 @@ export function ChatClient(options) {
 	
 	this.output = function(response) {  
 		let msg = response.message; 
-	 
+		let recvStr = msg.content;
+		
 		if (msg.content != "") {
-			this.recevStr += msg.content; 
+			this.result += msg.content; 
 		} 
-		 		 
+				
 		if (msg.thinking != null && msg.thinking != "") {
-			this.transmit(msg.thinking);  
-		}  else {
-			this.transmit(msg.content); 
+			recvStr = msg.thinking;	 
 		}	 
 		
-		if (response.done) {
+		if (this.onReceive != null) {
+			this.onReceive(recvStr);  
+		}
+		
+		if (response.done) {		
+			this.Add('assistant', this.result, null); 
+			
 			if (this.onEnd != null) {
 				this.onEnd(response);
 			}
 		}
-	}
-	
-	this.transmit = function(str) {
-		if (this.onReceive != null) {
-			this.onReceive(str);  
-		}
-	}
+	} 
 };
