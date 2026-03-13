@@ -2,19 +2,31 @@ import { ChatClient } from './scripts/ollama/chatclient.js';
 import { createInterface } from 'node:readline';
 import { stdin, stdout } from 'node:process';
 import * as child_process from 'node:child_process';
+import * as iost from 'node:fs';
 
-const options = { host: "http://localhost:11434", alive: "1h", context: 32000, random: 0.7, loop: true, think: false, tools: false };
+const options = { host: "http://localhost:11434", alive: "1h", context: 32000, random: 0.7, loop: false, think: false, tools: true };
 const llm = "qwen3.5:9b";
 
-const tt_s = 1000 * 1000 * 1000;  
+const tt_s = 1000 * 1000 * 1000;   
+
 const myclaw = new ChatClient(options);  
+
+myclaw.metadata = "";
+ 
+function run_cmd(name) {
+	child_process.exec("start " + name, (err, stdout, stderr) => {
+		if (err) {
+			console.error(`exec error: ${err}`);
+		}
+	}); 
+}	
  
 myclaw.Tools = [
 {
 	type: 'function',
 	function: {
 		name: 'exceCmd',
-		description: 'open software on PC',
+		description: 'run software or app on PC',
 		parameters: {
 			type: 'object', 
 			properties: {
@@ -28,7 +40,7 @@ myclaw.Tools = [
 	type: 'function',
 	function: {
 		name: 'openWebsite',
-		description: 'use ms edge open website',
+		description: 'use microsoft edge open website',
 		parameters: {
 			type: 'object', 
 			properties: {
@@ -37,47 +49,21 @@ myclaw.Tools = [
 			required: ['name']
 		}		
 	}
-},
-{
-	type: 'function',
-	function: {
-		name: 'send_message',
-		description: 'user message send to whatsapp',
-		parameters: {
-			type: 'object', 
-			properties: {
-				name: { type: 'string', description: 'the message text' } 
-			},
-			required: ['text']
-		}		
-	} 
 }];
 
 myclaw.FuncArray = { 
-	exceCmd: (args) => {
-		let app = args.name + '.exe'; 
-		child_process.exec("start " + app, (err, stdout, stderr) => {
-			if (err) {
-				console.error(`exec error: ${err}`);
-			}
-		}); 
-		return "[Toolscall] ok, open " + app + " now.";
+	exceCmd: (args) => { 
+		run_cmd(args.name); 
+		return "[Toolscall exceCmd] ok, run " + args.name + " now.";
 	},
 	openWebsite: (args) => {
-		let domain = args.name;
-		if (!domain.startsWith('www')) 
-			domain = "www." + args.name;
-			
-		let url = "https://" + domain; 
-		child_process.exec("start msedge " + url, (err, stdout, stderr) => {
-			if (err) {
-				console.error(`exec error: ${err}`);
-			}
-		}); 
-		return "[Toolscall] ok, open " + url + " now.";	
-	},
-	send_message: (args) => {
-		console.log('[Toolscall] ' +  args.text); 
+		let url = ""; 
+		if (!args.name.startsWith('https://'))
+				url = "https://" + args.name;
+	 
+		run_cmd("start msedge " + url); 
+		 
+		return "[Toolscall Website] ok, open " + url + " now.";	
 	}
 }; 
 
@@ -92,8 +78,7 @@ myclaw.onBegin = async () => {
 myclaw.onEnd = async (res) => { 	
 
 	console.log(myclaw.result);
-	console.log('\r\n');
-	
+  	
 	if (res.message.tool_calls) { 	
         // Process tool calls from the response
         const tools = res.message.tool_calls[0];
@@ -101,7 +86,7 @@ myclaw.onEnd = async (res) => {
 			
 		const callback = myclaw.FuncArray[func.name];	 
         
-		if (toCall) {
+		if (callback) {
 			let toolsMsg = callback(func.arguments); 
 			myclaw.Add('tool', toolsMsg, null); 
 			
@@ -121,7 +106,7 @@ myclaw.onEnd = async (res) => {
 }
 
 const chat = async function(txt) {
-	if (txt =="" || llm == "" || myclaw.state) return; 
+	if (txt == "" || llm == "" || myclaw.state) return; 
 	
 	myclaw.state = true; 
 	
@@ -158,15 +143,35 @@ cli.on('line', (line) => {
 			break;
 		case "new":
 			myclaw.Reset();		
+			chat(myclaw.metadata);
 			break;
 		default:
 			chat(line);
 	}
     
 }).on('close', () => {
-	console.log('Have a nice day!');
+	stdout.write('Have a nice day!');
 	process.exit(0);
 });
 
-console.log("MicroClaw agent is running ...");
+async function systemFile(name) {
+	const streamReader = iost.createReadStream(name, { encoding: 'utf8' });
+	try {
+		let str = "";
+		for await (const chunk of streamReader) {       
+			str += chunk;     
+		}		
+		myclaw.metadata = str;
+		chat(str);
+	} catch (error) {
+		console.error(`Error reading file: ${error.message}`);
+	}
+}
+
+if (myclaw.metadata == "") {
+	await systemFile('workspace/SOUL.md');	
+} 
+
+console.log("MicroClaw agent is running ..."); 
+
  
