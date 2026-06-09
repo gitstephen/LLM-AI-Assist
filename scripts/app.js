@@ -5,6 +5,7 @@ const btnSend = document.getElementById("chat-send");
 const btnPause = document.getElementById("chat-pause");
 const btnImg = document.getElementById("chat-img");
 const btnCode = document.getElementById("chat-code");
+const btnHistory = document.getElementById("chat-history");
 
 const fileImg = document.getElementById("llm-file");
 
@@ -17,6 +18,8 @@ const lb_search = document.getElementById("llm-search");
 
 const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
+const lb_sess = document.getElementById("sess-history"); 
+
  
 var App = function() { 
 	this.state = false; 
@@ -99,7 +102,7 @@ var App = function() {
 				this.refresh(false);
 			}, 500);			
 		}	
-		catch(err) { 
+		catch (err) { 
 			img_load.style.display = HIDDEN;
 			lb_search.style.display = VISIBLE;
 			
@@ -118,7 +121,7 @@ var App = function() {
 		
 		list.innerHTML = "";
 		
-		for(var i = 0; i < data.length; i++ ) { 
+		for (var i = 0; i < data.length; i++ ) { 
 			list.add(new Option(data[i], i + 1)); 
 		}
 		
@@ -136,15 +139,35 @@ var App = function() {
 		} 
 	};
 	
+	this.clear = async () => {
+		localStorage.clear(); 
+		
+		lb_sess.innerHTML = "";
+	};
+	
 	this.stop = () => {
 		this.stream.Stop();
 	};
 	
-	this.clear = () => {
+	this.checkout = () => {
 		if (this.state) return; 
 		if (this.stream.Dialogue.length == 0) return;
 		
-		this.refresh(true);
+		this.refresh(true); 
+		
+		const n = localStorage.length + 1;
+		
+		let str = this.stream.Dialogue[0].content;
+		
+		localStorage.setItem('sess_' + n, str); 
+		
+		//add session history
+		let child = document.createElement("div");
+		
+		child.setAttribute('class', 'llm-sess');	 
+		child.innerHTML = `<div>${str}</div>`; 
+	
+		lb_sess.appendChild(child);			
 		
 		this.stream.Reset();
 		
@@ -170,9 +193,21 @@ var App = function() {
 		this.getDom("think").checked = config.think; 
 		this.getDom("tools").checked = config.tools; 
 		
-		this.save(config); 
-	};
-
+		this.save(config);  
+		
+		for (let i = 0; i < localStorage.length; i++) {
+			let key = localStorage.key(i);
+			let str = localStorage.getItem(key);
+			 			
+			let child = document.createElement("div");
+		
+			child.setAttribute('class', 'llm-sess');	 
+			child.innerHTML = `<div>${str}</div>`; 
+		
+			lb_sess.appendChild(child);
+		}	
+	}; 
+	 
 	this.download = async (model) => { 
 		try {
 			let result = await this.stream.Find(model);
@@ -254,14 +289,26 @@ var App = function() {
 		};		
 		/* end */
 		
-		this.getDom("url-refresh").onclick = () => {  
+		this.getDom("url-refresh").onclick = () => {
 			this.connect(lb_host.value);	
 		};
 		
-		this.getDom("chat-clear").onclick = () => {
+		this.getDom("chat-checkout").onclick = () => {
+			this.checkout();
+		};
+			   		
+		this.getDom("chat-history").onclick = () => {
+			this.getDom("slide-sess").style.right = 0; 
+		}; 
+		
+		this.getDom('sess-close').onclick = () => {
+			this.getDom("slide-sess").style.right = "-350px"; 
+		};
+		
+		this.getDom('sess-clear').onclick = () => {
 			this.clear();
 		};
-			   
+				
 		this.getDom('chat-setting').onclick = () => {
 			this.getDom("slide-menu").style.right = 0;
 		};	
@@ -278,13 +325,12 @@ var App = function() {
 			} else {
 				lb_stats.innerHTML = '<span class="text-err">Please input model name</span>';  
 			}
-		}; 
+		};
  
 		this.getDom("setting-del").onclick = () => {
 			if (confirm("Are you sure to delete ai model?")) { 
 				let name = this.getListItem("ai-model");	 
 				
-				console.log("delete");
 				this.remove(name); 	 
 			} 
 		}; 

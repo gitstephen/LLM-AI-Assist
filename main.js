@@ -14,13 +14,13 @@ const myclaw = new ChatClient(options);
 myclaw.metadata = "";
  
 function run_cmd(name) {
-	child_process.exec("start " + name, (err, stdout, stderr) => {
+	child_process.exec(name, (err, stdout, stderr) => {
 		if (err) {
 			console.error(`exec error: ${err}`);
 		}
 	}); 
 }	
- 
+
 myclaw.Tools = [
 {
 	type: 'function',
@@ -47,7 +47,7 @@ myclaw.Tools = [
 				name: { type: 'string', description: 'website name' } 
 			},
 			required: ['name']
-		}		
+		}
 	}
 }];
 
