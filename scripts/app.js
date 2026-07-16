@@ -7,7 +7,7 @@ const btnImg = document.getElementById("chat-img");
 const btnCode = document.getElementById("chat-code");
 const btnHistory = document.getElementById("chat-history");
 
-const fileImg = document.getElementById("llm-file");
+const fileImg = document.getElementById("llm-file"); 
 
 const img_preview = document.getElementById("llm-pic");
 const img_load = document.getElementById("llm-loading");

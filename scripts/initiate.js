@@ -5,6 +5,14 @@ const tt_s = 1000 * 1000 * 1000;
 
 let options = { host: "http://localhost:11434", alive: "1h", context: 8192, random: 0.7 };
 
+const requestAppend = async (str) => {
+	client.chars.append(str); //innerText += str;
+
+	if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
+		lb_dialog.scrollTop += 20;
+	}	 
+};
+
 const client = new ChatClient(options);  
 
 client.Tools = tools;
@@ -17,21 +25,15 @@ client.onBegin = async () => {
 
 // chat result 
 client.onResult = async () => {
-	client.chars.innerHTML = "";	  
+	client.chars.innerHTML = ""; 
 }
 
 //char message receive
-client.onReceive = async function(str) {  
-	client.chars.append(str); //innerText += str;
-	
-	if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
-		lb_dialog.scrollTop += 20;
-	} 
-} 
+client.onReceive = requestAppend;
 
 //char output end
 client.onEnd = async (res) => { 
-	//console.log(res);
+	//console.log(client.result);
 	
 	if (res.message.tool_calls) { 	
         // Process tool calls from the response
@@ -47,7 +49,7 @@ client.onEnd = async (res) => {
 			client.chars.innerHTML += 'Function ' + func.name + ' not found';
 		}        
 	}	
-
+    
 	//show tokens per second
 	let dt = res.eval_duration / tt_s;
 	let token = res.eval_count / res.eval_duration * tt_s;
@@ -59,7 +61,9 @@ client.onEnd = async (res) => {
 //chat clear
 client.onClear = () => { 
 	console.log("clear");  
-	lb_dialog.innerHTML = '';  
+	
+	lb_dialog.innerHTML = '';   
+	img_preview.src = "";
 }
 
 //download model
