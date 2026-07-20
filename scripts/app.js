@@ -20,6 +20,7 @@ const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
 const lb_sess = document.getElementById("sess-history"); 
 
+const tmpl_hello = `<div id="llm-ollama"><image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hey, how can I help you?</p></div>`;
  
 var App = function() { 
 	this.state = false; 
