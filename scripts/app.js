@@ -1,6 +1,3 @@
-const VISIBLE = "block";
-const HIDDEN = "none";
-
 const btnSend = document.getElementById("chat-send");
 const btnPause = document.getElementById("chat-pause");
 const btnImg = document.getElementById("chat-img");
@@ -18,13 +15,20 @@ const lb_search = document.getElementById("llm-search");
 
 const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
-const lb_sess = document.getElementById("sess-history"); 
+const lb_history = document.getElementById("sess-history"); 
 
-const tmpl_hello = `<div id="llm-ollama"><image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hey, how can I help you?</p></div>`;
- 
-var App = function() { 
+App = function() { 
 	this.state = false; 
 	this.stream = null;
+ 
+	this.hello = async () => {
+		let child = document.createElement("div");
+		
+		child.setAttribute('class', 'llm-cover');	 
+		child.innerHTML = `<image src="images/ollama.png" alt="ollama" /><p style="font-size: 24px;">Hey, how can I help you?</p>`; 
+		
+		lb_dialog.appendChild(child);
+	};
 	
 	this.addText = async (str, css) => {
 		let child = document.createElement("div");
@@ -43,17 +47,17 @@ var App = function() {
 		let llm = this.getListItem("chat-model");
  		let enquire = this.getDom("enquire");
 		
-		if (llm == "" || enquire.value == "") { 
+		if (llm == "" || !enquire.value.trim()) { 
 			return;
-		}
+		} 
 		
-		if (this.stream.Dialogue.length == 0) {
-			img_ollama.style.display = HIDDEN;
+		if (this.stream.History.length == 0) {
+			lb_dialog.innerHTML = "";
 		}
 		
 		this.state = true;
 		let picData = null;
-						
+ 
 		let picMode = this.getSelector('#optPic:checked') ? true : false;
 		
 		if (picMode && img_preview.src != "") {			
@@ -82,45 +86,33 @@ var App = function() {
 		this.state = false; 
 	}; 
 	
-	this.connect = async (url) => {
-		lb_search.style.display = HIDDEN; 
-		
+	this.connect = async (url) => { 
 		this.stream.Setting.host = url;
 		
 		if (this.stream.isOpen()) {
 			this.stream.Dispose(); 
 		}
-		
-		this.refresh(true);
-	
+		 
 		try
 		{			
-			await this.list(); 
+			await this.models(); 
 			
-			this.getDom("host").value = url; 
+			this.getDom("host").value = url;  
 			
-			setTimeout(() => {
-				this.refresh(false);
-			}, 500);			
+			this.hello();
 		}	
-		catch (err) { 
-			img_load.style.display = HIDDEN;
-			lb_search.style.display = VISIBLE;
-			
-			lb_host.value = url;
-			
-			this.getDom("conn-llm").innerText = "Ollama connection refused."; 
-			
-			console.log(url);
+		catch (err) {
+			console.log(url);  
+			 
+			this.addText('Ollama connection error.', "llm-received text-err");	 
 		} 	
 	};
 
-	this.list = async () => {
-		let data = await this.stream.GetModels();  
-		
-		let list = this.getDom('chat-model');
-		
+	this.models = async () => { 
+		let list = this.getDom('chat-model');		
 		list.innerHTML = "";
+		
+		let data = await this.stream.Health();  
 		
 		for (var i = 0; i < data.length; i++ ) { 
 			list.add(new Option(data[i], i + 1)); 
@@ -133,7 +125,7 @@ var App = function() {
 		try {
 			await this.stream.Remove(name);  
 				
-			this.list(); 
+			this.models(); 
 		}
 		catch(err) {
 			this.addText(err.message, "llm-received text-err");	
@@ -143,7 +135,7 @@ var App = function() {
 	this.clear = async () => {
 		localStorage.clear(); 
 		
-		lb_sess.innerHTML = "";
+		lb_history.innerHTML = "";
 	};
 	
 	this.stop = () => {
@@ -152,13 +144,11 @@ var App = function() {
 	
 	this.checkout = () => {
 		if (this.state) return; 
-		if (this.stream.Dialogue.length == 0) return;
-		
-		this.refresh(true); 
-		
+		if (this.stream.History.length == 0) return;
+		 
 		const n = localStorage.length + 1;
 		
-		let str = this.stream.Dialogue[0].content;
+		let str = this.stream.History[0].content;
 		
 		localStorage.setItem('sess_' + n, str); 
 		
@@ -168,13 +158,11 @@ var App = function() {
 		child.setAttribute('class', 'llm-sess');	 
 		child.innerHTML = `<div>${str}</div>`; 
 	
-		lb_sess.appendChild(child);			
+		lb_history.appendChild(child);			
 		
 		this.stream.Reset();
 		
-		setTimeout(() => {
-			this.refresh(false);
-		}, 500);
+		this.hello();
 	};
 	
 	this.save = async (config) => {
@@ -190,6 +178,7 @@ var App = function() {
 		this.getDom("alive").value = config.alive;
 		this.getDom("ctxnum").value = config.context;
 		this.getDom("random").value = config.random;
+		
 		this.getDom("stream").checked = config.loop;
 		this.getDom("think").checked = config.think; 
 		this.getDom("tools").checked = config.tools; 
@@ -199,13 +188,13 @@ var App = function() {
 		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);
 			let str = localStorage.getItem(key);
-			 			
+ 
 			let child = document.createElement("div");
 		
 			child.setAttribute('class', 'llm-sess');	 
 			child.innerHTML = `<div>${str}</div>`; 
 		
-			lb_sess.appendChild(child);
+			lb_history.appendChild(child);
 		}	
 	}; 
 	 
@@ -217,16 +206,15 @@ var App = function() {
 				lb_stats.innerText = "done";  
 				this.getDom("llm-pull").value = "";
 				
-				this.list(); 
+				this.models(); 
 			} 
 		} catch(err) { 
 			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};  
 	
-	this.refresh = (appear) => {
-		img_load.style.display = appear ? VISIBLE : HIDDEN;
-		img_ollama.style.display = appear ? HIDDEN : VISIBLE;
+	this.refresh = (state) => {
+		this.hello();
 	};
 	
 	this.getDom = (id) => {
@@ -288,11 +276,7 @@ var App = function() {
 				console.log(reader.error);
 			}; 
 		};		
-		/* end */
-		
-		this.getDom("url-refresh").onclick = () => {
-			this.connect(lb_host.value);	
-		};
+		/* end */ 
 		
 		this.getDom("chat-checkout").onclick = () => {
 			this.checkout();
@@ -357,13 +341,81 @@ var App = function() {
 	};
 }; 
 
-const app = new App();
+const changeState = async () => { 
+	btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
+	btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
+};
  
-addEventListener("DOMContentLoaded", () => { 
-	client.changeState = async () => { 
-		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
-		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
-	}  
+const tt_s = 1000 * 1000 * 1000; 
+const app = new App();
+
+var responseChars = null;
+
+addEventListener("DOMContentLoaded", () => {   
+	// chat start 
+	client.onBegin = async () => {	
+		responseChars = lb_dialog.lastChild.querySelector('pre');			
+		changeState(); 
+	}
+
+	// chat result 
+	client.onResult = async () => {
+		//clear loading svg
+		responseChars.innerHTML = ""; 
+	}
+
+	//char message receive
+	client.onReceive = async (str) => {
+		responseChars.append(str); //innerText += str;
+
+		if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
+			lb_dialog.scrollTop += 20;
+		}	 
+	}; 
+
+	//char output end
+	client.onEnd = async (res) => { 
+		//console.log(client.result);
+		
+		if (res.message.tool_calls) { 
+			// Process tool calls from the response
+			const tool = res.message.tool_calls[0];
+			let func = tool.function;
+				
+			const dispatched = func_list[func.name];
+			
+			if (dispatched) {
+				let res = dispatched(func.arguments); 
+				responseChars.innerHTML += res;
+			} else {
+				responseChars.innerHTML += 'Function ' + func.name + ' not found';
+			}  
+		}	
+		
+		//show tokens per second
+		let dt = res.eval_duration / tt_s;
+		let token = res.eval_count / res.eval_duration * tt_s;
+		
+		responseChars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
+		changeState();
+	}
+
+	//chat clear
+	client.onClear = () => { 
+		console.log("clear");  
+		
+		lb_dialog.innerHTML = '';   
+		img_preview.src = "";
+	}
+
+	//download model
+	client.onDownload = async () => { 
+		lb_stats.innerText = "start download";
+	}
+
+	client.onFileStream = async (status, percent) => {	 
+		lb_stats.innerText = `${status} ${percent}%...`;
+	} 
 	
 	let config = client.Setting;
 	

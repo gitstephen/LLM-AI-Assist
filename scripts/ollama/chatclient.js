@@ -3,7 +3,7 @@ import { Ollama } from './browser.js';
 export function ChatClient(options) { 
 	this.Setting = options; 
 	this.Tools = [];
-	this.Dialogue = []; 
+	this.History = []; 
 	this.result = "";
 
 	this.ollama = null; 
@@ -18,7 +18,7 @@ export function ChatClient(options) {
 	this.onFileStream = null;
 	
 	//Get model list
-	this.GetModels = async function() {
+	this.Health = async function() {
 		this.checkOllama();
 
 		let list = [];				 
@@ -31,36 +31,35 @@ export function ChatClient(options) {
 		return list; 
 	}	 
 	
-	this.Add = function(r, msg, img) {
-		this.Dialogue.push({ role: r, content: msg, images: img });  
+	this.Add = function(name, message, img) {
+		this.History.push({ role: name, content: message, images: img });  
 	}
 	
 	//chat
 	this.Send = async function(llm, content) { 	
 		this.checkOllama(); 
-		this.result = "";	
-		
-		this.Add('user', content.message, content.img);					
+		this.result = "";	 
 		
 		if (this.onBegin != null) {
 			this.onBegin();
 		}
 		
-		let tools_func = this.Setting.tools ? this.Tools : [];
-		
 		//console.log("tools call: " + this.Setting.tools);
-	 
+		let tools_func = this.Setting.tools ? this.Tools : [];
+				
+	    this.Add('user', content.message, content.img);		
+		
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,
-			messages: this.Dialogue,
+			messages: this.History,
 			stream: this.Setting.loop, 
 			think: this.Setting.think,
 			keep_alive: this.Setting.alive, 
 			options: { num_ctx: this.Setting.context, temperature: this.Setting.random },
 			tools: tools_func
-		});	 		
-		
+		});
+		 
 		//output message
 		if (this.onResult != null) {
 			this.onResult();
@@ -68,7 +67,7 @@ export function ChatClient(options) {
 
 		if (this.Setting.loop) {
 			for await (const part of response) {
-				this.output(part);				
+				this.output(part);	
 			}	 
 		} else {
 			this.output(response); 
@@ -84,7 +83,7 @@ export function ChatClient(options) {
 	
 	//delete chat
 	this.Reset = function() {
-		this.Dialogue.length = 0;
+		this.History.length = 0;
 		
 		if (this.onClear != null) {
 			this.onClear();
@@ -123,7 +122,7 @@ export function ChatClient(options) {
 	}		
 	
 	this.Dispose = function() {
-		this.ollama = null;		
+		this.ollama = null;
 		this.Reset();
 	}
 	
@@ -137,7 +136,7 @@ export function ChatClient(options) {
 		return this.ollama != null;
 	}	
 	
-	this.output = function(response) {  
+	this.output = function(response) {
 		let msg = response.message; 
 		let recvStr = msg.content;
 		
