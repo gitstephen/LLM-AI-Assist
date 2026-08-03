@@ -1,7 +1,7 @@
 import { Ollama } from './browser.js';
  
 export function ChatClient(options) { 
-	this.Setting = options; 
+	this.Setting = options || {}; 
 	this.Tools = [];
 	this.History = []; 
 	this.result = "";
@@ -18,7 +18,7 @@ export function ChatClient(options) {
 	this.onFileStream = null;
 	
 	//Get model list
-	this.Health = async function() {
+	this.Health = async () => {
 		this.checkOllama();
 
 		let list = [];				 
@@ -29,7 +29,7 @@ export function ChatClient(options) {
 		}); 
 		
 		return list; 
-	}	 
+	};	 
 	
 	this.Add = function(name, message, img) {
 		this.History.push({ role: name, content: message, images: img });  
@@ -52,7 +52,7 @@ export function ChatClient(options) {
 		//create chat
 		const response = await this.ollama.chat({
 			model: llm,
-			messages: this.History,
+			messages: [...this.History],
 			stream: this.Setting.loop, 
 			think: this.Setting.think,
 			keep_alive: this.Setting.alive, 
@@ -76,9 +76,14 @@ export function ChatClient(options) {
 	
 	//abort
 	this.Stop = function() {
-		if (this.ollama != null) {
-			this.ollama.abort();
-		}
+		try 
+		{
+			if (this.ollama != null) {
+				this.ollama.abort();
+			}
+		} catch (error) {
+            console.error('Abort failed:', error.message);
+        }
 	}
 	
 	//delete chat
@@ -124,12 +129,13 @@ export function ChatClient(options) {
 	this.Dispose = function() {
 		this.ollama = null;
 		this.Reset();
+		this.result = "";
 	}
 	
 	this.checkOllama = function() {
-		if (this.ollama == null) {
-			this.ollama = new Ollama({ host: this.Setting.host });
-		}
+		if (!this.ollama) {
+            this.ollama = new Ollama({ host: this.Setting.host });
+        }
 	}
 	
 	this.isOpen = function() {

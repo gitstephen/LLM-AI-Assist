@@ -17,11 +17,14 @@ const lb_dialog = document.getElementById("conversation");
 const lb_stats = document.getElementById("llm-stats");
 const lb_history = document.getElementById("sess-history"); 
 
+const enquire = document.getElementById("enquire"); 
+const chatllm = document.getElementById("chat-model"); 
+
 App = function() { 
 	this.state = false; 
 	this.stream = null;
  
-	this.hello = async () => {
+	this.hello = async () => {		
 		let child = document.createElement("div");
 		
 		child.setAttribute('class', 'llm-cover');	 
@@ -30,13 +33,28 @@ App = function() {
 		lb_dialog.appendChild(child);
 	};
 	
+	this.connect = async () => { 
+		 
+		if (this.stream.isOpen()) {
+			this.stream.Dispose(); 
+		}
+		 
+		try
+		{			
+			await this.models();   
+			
+			this.hello();		
+		}	
+		catch (err) { 
+			this.addText('Ollama connection error.', "llm-received text-err");	 
+		} 	
+	};
+	
 	this.addText = async (str, css) => {
 		let child = document.createElement("div");
 		
 		child.setAttribute('class', 'llm-message ' + css);	 
-		child.innerHTML = `<div> 
-				<pre>${str}</pre> 
-				</div>`; 
+		child.innerHTML = `<div><pre>${str}</pre></div>`; 
 		
 		lb_dialog.appendChild(child);
 	};
@@ -44,10 +62,9 @@ App = function() {
 	this.chat = async () => {
 		if (this.state) return;  
 		
-		let llm = this.getListItem("chat-model");
- 		let enquire = this.getDom("enquire");
+		const selLLM = chatllm.options[chatllm.selectedIndex]?.text; 
 		
-		if (llm == "" || !enquire.value.trim()) { 
+		if (!selLLM || !enquire.value.trim()) { 
 			return;
 		} 
 		
@@ -60,65 +77,40 @@ App = function() {
  
 		let picMode = this.getSelector('#optPic:checked') ? true : false;
 		
-		if (picMode && img_preview.src != "") {			
+		if (picMode && img_preview?.src.startsWith('data:image/')) {			
 			picData = [img_preview.src.substring(23)]; 
 		}
 		 
-		//start chat
-		let content = { message: enquire.value, img: picData }; 
-			
-		this.addText(content.message, "llm-send");	
+		//start chat 
+		this.addText(enquire.value, "llm-send");	
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
-		
-		enquire.value = ""; 	
-		let config = this.stream.Setting;
+		 
+		const config = this.stream.Setting;
 		
 		try { 
 			//console.log(`stream: ${config.loop}, thinking: ${config.think}`);
 			//send message
-			await this.stream.Send(llm, content); 
+			await this.stream.Send(selLLM, { message: enquire.value, img: picData }); 
 		}
 		catch(err) { 
-			this.addText(err.message, "llm-received text-err");
-			this.stream.changeState();
-		}
-
-		this.state = false; 
-	}; 
-	
-	this.connect = async (url) => { 
-		this.stream.Setting.host = url;
+			responseChars.innerHTML = `<div class="llm-received text-err">${err.message}</div>`; 	 
+			
+			changeState(); 
+		}		
 		
-		if (this.stream.isOpen()) {
-			this.stream.Dispose(); 
-		}
-		 
-		try
-		{			
-			await this.models(); 
-			
-			this.getDom("host").value = url;  
-			
-			this.hello();
-		}	
-		catch (err) {
-			console.log(url);  
-			 
-			this.addText('Ollama connection error.', "llm-received text-err");	 
-		} 	
-	};
+		this.state = false; 
+	}; 	
 
-	this.models = async () => { 
-		let list = this.getDom('chat-model');		
-		list.innerHTML = "";
+	this.models = async () => {  
+		chatllm.innerHTML = "";
 		
 		let data = await this.stream.Health();  
 		
 		for (var i = 0; i < data.length; i++ ) { 
-			list.add(new Option(data[i], i + 1)); 
+			chatllm.add(new Option(data[i], i + 1)); 
 		}
 		
-		this.getDom('ai-model').innerHTML = list.innerHTML;
+		this.getDom('ai-model').innerHTML = chatllm.innerHTML;
 	}; 
 	
 	this.remove = async (name) => {
@@ -162,18 +154,12 @@ App = function() {
 		
 		this.stream.Reset();
 		
-		this.hello();
-	};
+		this.models();
+	}; 
 	
-	this.save = async (config) => {
+	this.update = async (config) => { 		
 		this.stream.Setting = config;
 		
-		console.log(config);
-		
-		this.connect(config.host);
-	};
-	
-	this.update = async (config) => {
 		this.getDom("host").value = config.host;
 		this.getDom("alive").value = config.alive;
 		this.getDom("ctxnum").value = config.context;
@@ -181,9 +167,7 @@ App = function() {
 		
 		this.getDom("stream").checked = config.loop;
 		this.getDom("think").checked = config.think; 
-		this.getDom("tools").checked = config.tools; 
-		
-		this.save(config);  
+		this.getDom("tools").checked = config.tools; 		
 		
 		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);
@@ -195,7 +179,7 @@ App = function() {
 			child.innerHTML = `<div>${str}</div>`; 
 		
 			lb_history.appendChild(child);
-		}	
+		}	 
 	}; 
 	 
 	this.download = async (model) => { 
@@ -212,11 +196,7 @@ App = function() {
 			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};  
-	
-	this.refresh = (state) => {
-		this.hello();
-	};
-	
+ 
 	this.getDom = (id) => {
 		return document.getElementById(id);
 	};
@@ -235,14 +215,14 @@ App = function() {
 		return "";
 	}; 
 	
-	this.run = async (callback) => {
+	this.run = async () => {
 		/* button event */	
 		btnSend.onclick = () => { 
 			this.chat();
 		}; 
 		
 		btnCode.onclick = () => { 
-		    this.getDom("enquire").value = "請優化以下代碼";		
+		    enquire.value = "請優化以下代碼";		
 			
 			this.chat();
 		};
@@ -250,7 +230,7 @@ App = function() {
 		btnPause.onclick = () => {  
 			this.stop(); 
 		};
-		
+ 
 		btnImg.onclick = () => {
 			let mode = this.getSelector('#optPic:checked') ? true : false;
 		
@@ -259,8 +239,8 @@ App = function() {
 			}
 			
 			fileImg.click();
-		};		
-		
+		}; 
+ 
 		fileImg.onchange = () => {	 
 			let file = fileImg.files[0];
 			
@@ -293,7 +273,7 @@ App = function() {
 		this.getDom('sess-clear').onclick = () => {
 			this.clear();
 		};
-				
+ 
 		this.getDom('chat-setting').onclick = () => {
 			this.getDom("slide-menu").style.right = 0;
 		};	
@@ -301,7 +281,7 @@ App = function() {
 		this.getDom('setting-close').onclick = () => {
 			this.getDom("slide-menu").style.right = "-350px"; 
 		};
-			
+ 
 		this.getDom("chat-pull").onclick = () => {
 			let model = this.getDom("llm-pull").value;
 			
@@ -315,13 +295,13 @@ App = function() {
 		this.getDom("setting-del").onclick = () => {
 			if (confirm("Are you sure to delete ai model?")) { 
 				let name = this.getListItem("ai-model");	 
-				
+ 
 				this.remove(name); 	 
 			} 
 		}; 
-		
-		this.getDom("setting-save").onclick = () => {  
-			let config = { 
+ 
+		this.getDom("setting-save").onclick = async () => {  
+			const config = { 
 				host: this.getDom("host").value, 
 				alive: this.getDom("alive").value, 
 				context: Number(this.getDom("ctxnum").value), 
@@ -329,19 +309,26 @@ App = function() {
 				loop: this.getSelector('#stream:checked') ? true : false,
 				think: this.getSelector('#think:checked') ? true : false,
 				tools: this.getSelector('#tools:checked') ? true : false 
-			};  
+			};
 			
-			chrome.storage?.local?.set({ options: config }).then(() => { 
-				this.save(config); 
-				this.getDom("slide-menu").style.right = "-350px";  
-			}); 
-		};	 
-		
-		callback();
+			await chrome.storage?.local?.set({ options: config });
+			
+			this.stream.Setting = config; 
+		 
+			this.getDom("slide-menu").style.right = "-350px";  
+		};	   
+	
+		const data = await chrome.storage?.local?.get("options");
+	
+		let setting = data.options || this.stream.Setting; 
+
+		this.update(setting);
+
+		this.connect(); 
 	};
 }; 
 
-const changeState = async () => { 
+const changeState = () => { 
 	btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
 	btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
 };
@@ -353,9 +340,11 @@ var responseChars = null;
 
 addEventListener("DOMContentLoaded", () => {   
 	// chat start 
-	client.onBegin = async () => {	
-		responseChars = lb_dialog.lastChild.querySelector('pre');			
-		changeState(); 
+	client.onBegin = async () => {		
+		responseChars = lb_dialog.lastChild.querySelector('pre');		
+		enquire.value = ""; 
+		
+		changeState();		
 	}
 
 	// chat result 
@@ -397,13 +386,12 @@ addEventListener("DOMContentLoaded", () => {
 		let token = res.eval_count / res.eval_duration * tt_s;
 		
 		responseChars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
+		
 		changeState();
 	}
 
 	//chat clear
 	client.onClear = () => { 
-		console.log("clear");  
-		
 		lb_dialog.innerHTML = '';   
 		img_preview.src = "";
 	}
@@ -415,19 +403,9 @@ addEventListener("DOMContentLoaded", () => {
 
 	client.onFileStream = async (status, percent) => {	 
 		lb_stats.innerText = `${status} ${percent}%...`;
-	} 
+	}  
 	
-	let config = client.Setting;
-	
-	app.stream = client; 
-	
-	app.run(() => { 
-		chrome.storage?.local?.get("options").then((data) => { 
-			if (Object.keys(data).length > 0) {	 
-				config = data.options; 
-			}  
- 
-			app.update(config);  
-		});
-	}); 
+	app.stream = client;   
+	 
+	app.run(); 
 });
