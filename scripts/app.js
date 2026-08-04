@@ -1,29 +1,8 @@
-const btnSend = document.getElementById("chat-send");
-const btnPause = document.getElementById("chat-pause");
-const btnImg = document.getElementById("chat-img");
-const btnCode = document.getElementById("chat-code");
-const btnHistory = document.getElementById("chat-history");
-
-const fileImg = document.getElementById("llm-file"); 
-
-const img_preview = document.getElementById("llm-pic");
-const img_load = document.getElementById("llm-loading");
-const img_ollama = document.getElementById("llm-ollama");
-
-const lb_host = document.getElementById("llm-host");
-const lb_search = document.getElementById("llm-search");
-
-const lb_dialog = document.getElementById("conversation");
-const lb_stats = document.getElementById("llm-stats");
-const lb_history = document.getElementById("sess-history"); 
-
-const enquire = document.getElementById("enquire"); 
-const chatllm = document.getElementById("chat-model"); 
-
 App = function() { 
 	this.state = false; 
 	this.stream = null;
- 
+    this.responseChars = '';
+	
 	this.hello = async () => {		
 		let child = document.createElement("div");
 		
@@ -33,17 +12,15 @@ App = function() {
 		lb_dialog.appendChild(child);
 	};
 	
-	this.connect = async () => { 
-		 
+	this.connect = async () => { 		 
 		if (this.stream.isOpen()) {
 			this.stream.Dispose(); 
 		}
 		 
-		try
-		{			
+		try {			
 			await this.models();   
 			
-			this.hello();		
+			this.hello();
 		}	
 		catch (err) { 
 			this.addText('Ollama connection error.', "llm-received text-err");	 
@@ -51,12 +28,12 @@ App = function() {
 	};
 	
 	this.addText = async (str, css) => {
-		let child = document.createElement("div");
+		let div = document.createElement("div");
 		
-		child.setAttribute('class', 'llm-message ' + css);	 
-		child.innerHTML = `<div><pre>${str}</pre></div>`; 
+		div.setAttribute('class', 'llm-message ' + css);	 
+		div.innerHTML = `<div><pre>${str}</pre></div>`; 
 		
-		lb_dialog.appendChild(child);
+		lb_dialog.appendChild(div);
 	};
 
 	this.chat = async () => {
@@ -77,31 +54,29 @@ App = function() {
  
 		let picMode = this.getSelector('#optPic:checked') ? true : false;
 		
-		if (picMode && img_preview?.src.startsWith('data:image/')) {			
+		if (picMode && img_preview?.src.startsWith('data:image/')) {
 			picData = [img_preview.src.substring(23)]; 
 		}
 		 
 		//start chat 
 		this.addText(enquire.value, "llm-send");	
 		this.addText('<img src="images/loading.svg" alt="thinking" />', "llm-received"); 
-		 
-		const config = this.stream.Setting;
-		
+		  
 		try { 
 			//console.log(`stream: ${config.loop}, thinking: ${config.think}`);
 			//send message
 			await this.stream.Send(selLLM, { message: enquire.value, img: picData }); 
 		}
 		catch(err) { 
-			responseChars.innerHTML = `<div class="llm-received text-err">${err.message}</div>`; 	 
+			this.responseChars.innerHTML = `<div class="llm-received text-err">${err.message}</div>`; 	 
 			
-			changeState(); 
-		}		
-		
+			this.changeState(); 
+		}
+
 		this.state = false; 
 	}; 	
 
-	this.models = async () => {  
+	this.models = async () => {
 		chatllm.innerHTML = "";
 		
 		let data = await this.stream.Health();  
@@ -115,8 +90,8 @@ App = function() {
 	
 	this.remove = async (name) => {
 		try {
-			await this.stream.Remove(name);  
-				
+			await this.stream.Remove(name);
+
 			this.models(); 
 		}
 		catch(err) {
@@ -147,17 +122,17 @@ App = function() {
 		//add session history
 		let child = document.createElement("div");
 		
-		child.setAttribute('class', 'llm-sess');	 
+		child.setAttribute('class', 'llm-sess');
 		child.innerHTML = `<div>${str}</div>`; 
 	
-		lb_history.appendChild(child);			
+		lb_history.appendChild(child);	 
 		
 		this.stream.Reset();
 		
-		this.models();
+		this.hello();
 	}; 
 	
-	this.update = async (config) => { 		
+	this.update = async (config) => {
 		this.stream.Setting = config;
 		
 		this.getDom("host").value = config.host;
@@ -167,7 +142,7 @@ App = function() {
 		
 		this.getDom("stream").checked = config.loop;
 		this.getDom("think").checked = config.think; 
-		this.getDom("tools").checked = config.tools; 		
+		this.getDom("tools").checked = config.tools; 
 		
 		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);
@@ -196,6 +171,12 @@ App = function() {
 			lb_stats.innerHTML = '<span class="text-err">' + err.message + '</span>';  
 		}
 	};  
+	
+	this.changeState = async () => { 
+		btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
+		btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
+	};
+ 
  
 	this.getDom = (id) => {
 		return document.getElementById(id);
@@ -216,6 +197,7 @@ App = function() {
 	}; 
 	
 	this.run = async () => {
+		
 		/* button event */	
 		btnSend.onclick = () => { 
 			this.chat();
@@ -301,7 +283,7 @@ App = function() {
 		}; 
  
 		this.getDom("setting-save").onclick = async () => {  
-			const config = { 
+			let config = { 
 				host: this.getDom("host").value, 
 				alive: this.getDom("alive").value, 
 				context: Number(this.getDom("ctxnum").value), 
@@ -314,9 +296,79 @@ App = function() {
 			await chrome.storage?.local?.set({ options: config });
 			
 			this.stream.Setting = config; 
+			
+			//console.log(config);
 		 
 			this.getDom("slide-menu").style.right = "-350px";  
+			
+			this.connect();
 		};	   
+		
+		// chat start 
+		this.stream.onBegin = async () => {		
+			this.responseChars = lb_dialog.lastChild.querySelector('pre');		
+			enquire.value = ""; 
+			
+			this.changeState();		
+		}
+
+		// chat result 
+		this.stream.onResult = async () => {
+			//clear loading svg
+			this.responseChars.innerHTML = ""; 
+		}
+
+		//char message receive
+		this.stream.onReceive = async (str) => {
+			this.responseChars.append(str); //innerText += str;
+
+			if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
+				lb_dialog.scrollTop += 20;
+			}	 
+		}; 
+
+		//char output end
+		this.stream.onEnd = async (res) => { 
+			//console.log(client.result);
+			
+			if (res.message.tool_calls) { 
+				// Process tool calls from the response
+				const tool = res.message.tool_calls[0];
+				let func = tool.function;
+					
+				const dispatched = func_list[func.name];
+				
+				if (dispatched) {
+					let res = dispatched(func.arguments); 
+					this.responseChars.innerHTML += res;
+				} else {
+					this.responseChars.innerHTML += 'Function ' + func.name + ' not found';
+				}  
+			}	
+			
+			//show tokens per second
+			let dt = res.eval_duration / tt_s;
+			let token = res.eval_count / res.eval_duration * tt_s;
+			
+			this.responseChars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
+			
+			this.changeState();
+		}
+
+		//chat clear
+		this.stream.onClear = () => { 
+			lb_dialog.innerHTML = '';   
+			img_preview.src = "";
+		}
+
+		//download model
+		this.stream.onDownload = async () => { 
+			lb_stats.innerText = "start download";
+		}
+
+		this.stream.onFileStream = async (status, percent) => {	 
+			lb_stats.innerText = `${status} ${percent}%...`;
+		}  
 	
 		const data = await chrome.storage?.local?.get("options");
 	
@@ -326,85 +378,35 @@ App = function() {
 
 		this.connect(); 
 	};
-}; 
+};  
 
-const changeState = () => { 
-	btnSend.style.display = btnSend.checkVisibility() ? "none" : "block";
-	btnPause.style.display = btnPause.checkVisibility() ? "none" : "block";
-};
- 
+const btnSend = document.getElementById("chat-send");
+const btnPause = document.getElementById("chat-pause");
+const btnImg = document.getElementById("chat-img");
+const btnCode = document.getElementById("chat-code");
+const btnHistory = document.getElementById("chat-history");
+
+const fileImg = document.getElementById("llm-file"); 
+
+const img_preview = document.getElementById("llm-pic");
+const img_load = document.getElementById("llm-loading");
+const img_ollama = document.getElementById("llm-ollama");
+
+const lb_host = document.getElementById("llm-host");
+const lb_search = document.getElementById("llm-search");
+
+const lb_dialog = document.getElementById("conversation");
+const lb_stats = document.getElementById("llm-stats");
+const lb_history = document.getElementById("sess-history"); 
+
+const enquire = document.getElementById("enquire"); 
+const chatllm = document.getElementById("chat-model"); 
+
 const tt_s = 1000 * 1000 * 1000; 
+
 const app = new App();
-
-var responseChars = null;
-
-addEventListener("DOMContentLoaded", () => {   
-	// chat start 
-	client.onBegin = async () => {		
-		responseChars = lb_dialog.lastChild.querySelector('pre');		
-		enquire.value = ""; 
-		
-		changeState();		
-	}
-
-	// chat result 
-	client.onResult = async () => {
-		//clear loading svg
-		responseChars.innerHTML = ""; 
-	}
-
-	//char message receive
-	client.onReceive = async (str) => {
-		responseChars.append(str); //innerText += str;
-
-		if (lb_dialog.offsetHeight + 300 > window.innerHeight) {
-			lb_dialog.scrollTop += 20;
-		}	 
-	}; 
-
-	//char output end
-	client.onEnd = async (res) => { 
-		//console.log(client.result);
-		
-		if (res.message.tool_calls) { 
-			// Process tool calls from the response
-			const tool = res.message.tool_calls[0];
-			let func = tool.function;
-				
-			const dispatched = func_list[func.name];
-			
-			if (dispatched) {
-				let res = dispatched(func.arguments); 
-				responseChars.innerHTML += res;
-			} else {
-				responseChars.innerHTML += 'Function ' + func.name + ' not found';
-			}  
-		}	
-		
-		//show tokens per second
-		let dt = res.eval_duration / tt_s;
-		let token = res.eval_count / res.eval_duration * tt_s;
-		
-		responseChars.innerHTML += "<span>" + token.toFixed(1) + " t/s, " +  dt.toFixed(2) + 's </span>';  
-		
-		changeState();
-	}
-
-	//chat clear
-	client.onClear = () => { 
-		lb_dialog.innerHTML = '';   
-		img_preview.src = "";
-	}
-
-	//download model
-	client.onDownload = async () => { 
-		lb_stats.innerText = "start download";
-	}
-
-	client.onFileStream = async (status, percent) => {	 
-		lb_stats.innerText = `${status} ${percent}%...`;
-	}  
-	
+ 
+addEventListener("DOMContentLoaded", () => {	
 	app.stream = client;   
 	 
 	app.run(); 
